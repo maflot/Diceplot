@@ -1,0 +1,228 @@
+---
+title: "Dice Plot Tutorial"
+author: "Matthias Flotho"
+date: "27.09.2024"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+```
+Introduction
+
+The dominoplot package provides tools for creating dice plots, which are specialized visualizations that display relationships between multiple categorical variables. These plots are particularly useful for showing the distribution of a third variable (cat_c) across two primary categories (cat_a and cat_b), with an optional grouping variable (group).
+
+In this tutorial, we will demonstrate how to use the dice_plot function to create dice plots with different numbers of categories in cat_c. We will create dummy datasets and generate plots for scenarios where cat_c has 3, 5, and 6 categories.
+
+Loading Required Libraries
+
+First, load the necessary libraries.
+```
+###
+# Load necessary libraries
+library(dominoplot)
+library(tidyr)
+library(data.table)
+library(ggplot2)
+library(dplyr)
+library(tibble)
+library(grid)
+library(cowplot)
+library(ggplotify)
+```
+Example 1: Dice Plot with 3 Categories
+
+In this example, we will create a dice plot where cat_c has 3 categories.
+
+Defining Variables and Colors
+
+Define the pathology variables and their corresponding colors.
+```
+
+# Define the variables and their colors for 3 variables
+pathology_variables <- c("Amyloid", "NFT", "Tangles")
+cat_c_colors <- c(
+  "Amyloid" = "#d5cccd",
+  "NFT" = "#cb9992",
+  "Tangles" = "#ad310f"
+)
+```
+Define cell types (cat_a), pathways (cat_b), and assign groups to pathways.
+```
+# Define cell types (cat_a)
+cell_types <- c("Neuron", "Astrocyte", "Microglia", "Oligodendrocyte", "Endothelial")
+
+# Define pathways (cat_b) and groups
+pathways <- c(
+  "Apoptosis", "Inflammation", "Metabolism", "Signal Transduction", "Synaptic Transmission",
+  "Cell Cycle", "DNA Repair", "Protein Synthesis", "Lipid Metabolism", "Neurotransmitter Release"
+)
+
+# Assign groups to pathways
+pathway_groups <- data.frame(
+  Pathway = pathways,
+  Group = c(
+    "BBB-linked", "Cell-proliferation", "Other", "BBB-linked", "Cell-proliferation",
+    "Cell-proliferation", "Other", "Other", "Other", "BBB-linked"
+  ),
+  stringsAsFactors = FALSE
+)
+
+# Define group colors
+group_colors <- c(
+  "BBB-linked" = "#333333",
+  "Cell-proliferation" = "#888888",
+  "Other" = "#DDDDDD"
+)
+```
+Creating the Dummy Dataset
+
+Create a dummy dataset by expanding combinations of cell types and pathways, and randomly assign pathology variables to each combination.
+```
+# Create dummy data
+set.seed(123)
+data <- expand.grid(CellType = cell_types, Pathway = pathways, stringsAsFactors = FALSE)
+
+# Assign random pathology variables to each combination
+data <- data %>%
+  rowwise() %>%
+  mutate(
+    PathologyVariable = list(sample(pathology_variables, size = sample(1:3, 1)))
+  ) %>%
+  unnest(cols = c(PathologyVariable))
+
+# Merge the group assignments into the data
+data <- data %>%
+  left_join(pathway_groups, by = "Pathway")
+```
+Generating the Dice Plot
+
+Use the dice_plot function to generate the plot.
+```
+# Use the dice_plot function
+dice_plot(data = data, 
+          cat_a = "CellType", 
+          cat_b = "Pathway", 
+          cat_c = "PathologyVariable", 
+          group = "Group",
+          plot_path = "./", 
+          output_str = "dice_plot_3_example", 
+          switch_axis = FALSE,
+          group_alpha = 0.6,
+          title = "Dice Plot with 3 Pathology Variables",
+          cat_c_colors = cat_c_colors, 
+          group_colors = group_colors, 
+          format = ".pdf",
+          custom_theme = theme_minimal())
+```
+This command will generate and save a PDF file named dice_plot_3_example_dice_plot.pdf in the current directory.
+
+Example 2: Dice Plot with 5 Categories
+
+Now, we will create a dice plot where cat_c has 5 categories.
+
+Defining Variables and Colors
+```
+# Define the variables and their colors for 5 variables
+pathology_variables <- c("Amyloid", "NFT", "Tangles", "Plaq N", "Var5")
+cat_c_colors <- c(
+  "Amyloid" = "#d5cccd",
+  "NFT" = "#cb9992",
+  "Tangles" = "#ad310f",
+  "Plaq N" = "#7e2a20",
+  "Var5" = "#FFD700"  # Gold color for Var5
+)
+
+# Create dummy data
+set.seed(123)
+data <- expand.grid(CellType = cell_types, Pathway = pathways, stringsAsFactors = FALSE)
+
+# Assign random pathology variables to each combination
+data <- data %>%
+  rowwise() %>%
+  mutate(
+    PathologyVariable = list(sample(pathology_variables, size = sample(1:5, 1)))
+  ) %>%
+  unnest(cols = c(PathologyVariable))
+
+# Merge the group assignments into the data
+data <- data %>%
+  left_join(pathway_groups, by = "Pathway")
+
+# Use the dice_plot function
+dice_plot(data = data, 
+          cat_a = "CellType", 
+          cat_b = "Pathway", 
+          cat_c = "PathologyVariable", 
+          group = "Group",
+          plot_path = "./", 
+          output_str = "dice_plot_5_example", 
+          switch_axis = FALSE,
+          group_alpha = 0.6,
+          title = "Dice Plot with 5 Pathology Variables",
+          cat_c_colors = cat_c_colors, 
+          group_colors = group_colors, 
+          format = ".pdf",
+          custom_theme = theme_minimal())
+
+```
+
+Example 3: Dice Plot with 6 Categories
+
+Finally, we will create a dice plot where cat_c has 6 categories.
+
+Defining Variables and Colors
+```
+# Define the variables and their colors for 6 variables
+pathology_variables <- c("Amyloid", "NFT", "Tangles", "Plaq N", "Var5", "Var6")
+cat_c_colors <- c(
+  "Amyloid" = "#d5cccd",
+  "NFT" = "#cb9992",
+  "Tangles" = "#ad310f",
+  "Plaq N" = "#7e2a20",
+  "Var5" = "#FFD700",  # Gold color for Var5
+  "Var6" = "#FF6622"  # Orange color for Var6
+)
+
+# Create dummy data
+set.seed(123)
+data <- expand.grid(CellType = cell_types, Pathway = pathways, stringsAsFactors = FALSE)
+
+# Assign random pathology variables to each combination
+data <- data %>%
+  rowwise() %>%
+  mutate(
+    PathologyVariable = list(sample(pathology_variables, size = sample(1:6, 1)))
+  ) %>%
+  unnest(cols = c(PathologyVariable))
+
+# Merge the group assignments into the data
+data <- data %>%
+  left_join(pathway_groups, by = "Pathway")
+
+
+# Use the dice_plot function
+dice_plot(data = data, 
+          cat_a = "CellType", 
+          cat_b = "Pathway", 
+          cat_c = "PathologyVariable", 
+          group = "Group",
+          plot_path = "./", 
+          output_str = "dice_plot_6_example", 
+          switch_axis = FALSE,
+          group_alpha = 0.6,
+          title = "Dice Plot with 6 Pathology Variables",
+          cat_c_colors = cat_c_colors, 
+          group_colors = group_colors, 
+          format = ".pdf",
+          custom_theme = theme_minimal())
+
+
+
+
+
+
+
+
+

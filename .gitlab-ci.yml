@@ -1,0 +1,33 @@
+# use the tidyverse rocker image, as it contains devtools preinstalled
+image: rocker/r-ver:latest
+
+# define stages of runner. at the moment,
+# just test (no build or deploy).
+
+variables:
+  R_LIBS_USER: "$CI_PROJECT_DIR/ci_libs"
+
+# Install additional packages with verbose output
+before_script:
+  - apt-get update && apt-get install -y libcurl4-openssl-dev libssl-dev
+  - mkdir -p $R_LIBS_USER
+  - R -e "options(warn=2); tryCatch(install.packages(c('curl', 'dplyr', 'ggplot2', 'tidyr', 'data.table'), repos = 'https://cloud.r-project.org/', lib = '$R_LIBS_USER', dependencies = TRUE, verbose = TRUE), error = function(e) { print(e); quit(status = 1) })"
+  - R -e "installed.packages()[,1]"
+
+stages:
+  - test
+  - build
+
+# define test job
+test-job:
+  stage: test
+  script:
+    - R CMD check ./dominoplot --no-manual
+    # run the devtools test
+    - R -e 'devtools::test()'
+    
+build-job:
+  stage: build
+  script:
+    # install
+    - R -e 'devtools::install()'
