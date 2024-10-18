@@ -1,7 +1,7 @@
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/diceplot)](https://CRAN.R-project.org/package=diceplot)
 
-> [!CAUTION]
-> Not stable, preliminary repository.
+> [!Note]
+> This repository is in active development
 > Fudging around with the paramters for a proper legend might be necessary
 
 # DicePlot
