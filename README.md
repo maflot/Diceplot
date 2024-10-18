@@ -32,9 +32,6 @@ install.packages(c(
 ```
 
 ### 3.1 Install DicePlot from GitHub
-> [!CAUTION]
-> Not feasable as the repoistory is still private
-
 
 You can install the `DicePlot` package directly from GitHub using the `devtools` package
 
