@@ -24,4 +24,5 @@ Imports:
     cowplot,
     tibble,
     stats,
-    rlang
+    rlang,
+    RColorBrewer

@@ -8,6 +8,7 @@ library(cowplot)
 library(stats)
 library(grid)
 library(cowplot)
+library(RColorBrewer)
 
 utils::globalVariables(c(
   "unique_groups", "x_min", "x_max", "y_min", "y_max","var",
@@ -34,7 +35,6 @@ default_cat_c_colors <- c(
 #' @param cat_b A string representing the column name in `data` for the second categorical variable.
 #' @param cat_c A string representing the column name in `data` for the third categorical variable.
 #' @param group A string representing the column name in `data` for the grouping variable.
-#' @param plot_path A string specifying the file path where the plot will be saved. Defaults to `NULL` (no file output).
 #' @param output_str An optional string to customize the filename if `plot_path` is specified. Defaults to `NULL`.
 #' @param group_alpha A numeric value for the transparency level of the group rectangles. Default is `0.5`.
 #' @param title An optional string for the plot title. Defaults to `NULL`.
@@ -50,13 +50,13 @@ default_cat_c_colors <- c(
 #' @importFrom grid unit
 #' @importFrom dplyr filter
 #' @importFrom rlang sym
+#' @importFrom RColorBrewer brewer.pal
 #' @export
 dice_plot <- function(data, 
                       cat_a, 
                       cat_b, 
                       cat_c, 
-                      group, 
-                      plot_path = NULL, 
+                      group = NULL, 
                       output_str = NULL, 
                       group_alpha = 0.5,
                       title = NULL,
@@ -68,22 +68,47 @@ dice_plot <- function(data,
   num_vars <- length(unique(data[[cat_c]]))
   
   # Validate number of variables
-  if (num_vars < 1 || num_vars > 6) {
-    stop("Unsupported number of categories for cat_c. Must be between 1 and 6.")
+  if (num_vars < 1 || num_vars > 9) {
+    stop("Unsupported number of categories for cat_c. Must be between 1 and 9.")
   }
   
-  # Set default colors if not provided
-  if (is.null(group_colors)) {
-    group_colors <- c(
-      "Group1" = "#333333",
-      "Group2" = "#888888",
-      "Group3" = "#DDDDDD"
-    )
-  }
-  
+  # Set default cat_c_colors using ColorBrewer if not provided
   if (is.null(cat_c_colors)) {
-    cat_c_colors <- default_cat_c_colors[1:num_vars]
-    names(cat_c_colors) <- unique(data[[cat_c]])
+    available_colors <- RColorBrewer::brewer.pal.info
+    # Choose a palette that can handle the number of categories
+    suitable_palettes <- rownames(available_colors[available_colors$category == "qual" & available_colors$maxcolors >= num_vars, ])
+    if (length(suitable_palettes) == 0) {
+      stop("No suitable ColorBrewer palette found for the number of categories in cat_c.")
+    }
+    palette_name <- suitable_palettes[1]  # Select the first suitable palette
+    default_cat_c_colors <- RColorBrewer::brewer.pal(n = num_vars, name = palette_name)
+    names(default_cat_c_colors) <- unique(data[[cat_c]])
+    cat_c_colors <- default_cat_c_colors
+  }
+  
+  # Handle group-related logic only if group is provided
+  if (!is.null(group)) {
+    # Assign default group colors using ColorBrewer if not provided
+    if (is.null(group_colors)) {
+      unique_groups <- unique(data[[group]])
+      num_groups <- length(unique_groups)
+      if (num_groups > 9) {
+        stop("The number of groups exceeds the maximum colors available in ColorBrewer palettes.")
+      }
+      # Choose a suitable palette
+      available_colors <- RColorBrewer::brewer.pal.info
+      suitable_palettes <- rownames(available_colors[available_colors$category == "qual" & available_colors$maxcolors >= num_groups, ])
+      if (length(suitable_palettes) == 0) {
+        stop("No suitable ColorBrewer palette found for the number of groups.")
+      }
+      palette_name <- suitable_palettes[2]  # Select a different palette to avoid color overlap
+      group_colors_palette <- brewer.pal(n = num_groups, name = palette_name)
+      names(group_colors_palette) <- unique_groups
+      group_colors <- group_colors_palette
+    }
+    
+    # Ensure group is a factor with levels matching group_colors
+    data[[group]] <- factor(data[[group]], levels = names(group_colors))
   }
   
   # Ensure consistent ordering of factors
@@ -91,19 +116,18 @@ dice_plot <- function(data,
   data[[cat_b]] <- factor(data[[cat_b]], levels = unique(data[[cat_b]]))
   data[[cat_c]] <- factor(data[[cat_c]], levels = names(cat_c_colors))
   
-  # Check for unique group per cat_b
-  group_check <- data %>%
-    group_by(!!sym(cat_b)) %>%
-    summarise(unique_groups = n_distinct(!!sym(group)), .groups = "drop") %>%
-    filter(unique_groups > 1)
-  
-  if (nrow(group_check) > 0) {
-    warning("Warning: The following cat_b categories have multiple groups assigned:\n",
-            paste(group_check[[cat_b]], collapse = ", "))
+  if (!is.null(group)) {
+    # Check for unique group per cat_b
+    group_check <- data %>%
+      group_by(!!sym(cat_b)) %>%
+      summarise(unique_groups = n_distinct(!!sym(group)), .groups = "drop") %>%
+      filter(unique_groups > 1)
+    
+    if (nrow(group_check) > 0) {
+      warning("Warning: The following cat_b categories have multiple groups assigned:\n",
+              paste(group_check[[cat_b]], collapse = ", "))
+    }
   }
-  
-  # Ensure group is a factor with levels matching group_colors
-  data[[group]] <- factor(data[[group]], levels = names(group_colors))
   
   # Define variable positions dynamically
   var_positions <- create_var_positions(cat_c_colors, num_vars)
@@ -111,31 +135,52 @@ dice_plot <- function(data,
   # Perform hierarchical clustering
   cat_a_order <- perform_clustering(data, cat_a, cat_b, cat_c)
   
-  # Order cat_b based on group and frequency
-  cat_b_order <- order_cat_b(data, group, cat_b, group_colors)
+  # Order cat_b based on group and frequency if group is provided
+  if (!is.null(group)) {
+    cat_b_order <- order_cat_b(data, group, cat_b, group_colors)
+  } else {
+    cat_b_order <- levels(data[[cat_b]])
+  }
   
   # Prepare plot data
   plot_data <- prepare_plot_data(data, cat_a, cat_b, cat_c, group, var_positions, cat_a_order, cat_b_order)
   
   # Prepare box data
-  box_data <- prepare_box_data(data, cat_a, cat_b, group, cat_a_order, cat_b_order)
+  if (!is.null(group)) {
+    box_data <- prepare_box_data(data, cat_a, cat_b, group, cat_a_order, cat_b_order)
+  }
   
   # Calculate dynamic dot size
   dot_size <- calculate_dot_size(num_vars)
   
-  # Create the main plot 'p' without the legends
-  p <- ggplot() +
-    geom_rect(data = box_data, 
-              aes(xmin = x_min, xmax = x_max, ymin = y_min, ymax = y_max, fill = !!sym(group)),
-              color = "grey", alpha = group_alpha, linewidth = 0.5) +
+  # Start building the main plot
+  p <- ggplot()
+  
+  # Add group-related layers if group is provided
+  if (!is.null(group)) {
+    p <- p +
+      geom_rect(data = box_data, 
+                aes(xmin = x_min, xmax = x_max, ymin = y_min, ymax = y_max, fill = !!sym(group)),
+                color = "grey", alpha = group_alpha, linewidth = 0.5)
+  }
+  
+  # Add points for cat_c
+  p <- p +
     geom_point(data = plot_data, 
                aes(x = x_pos, y = y_pos, color = !!sym(cat_c)), 
                size = dot_size, show.legend = FALSE) +
     geom_point(data = plot_data, 
                aes(x = x_pos, y = y_pos), 
                size = dot_size + 0.5, shape = 1, color = "black", show.legend = FALSE) +
-    scale_color_manual(values = cat_c_colors, name = cat_c, breaks = names(cat_c_colors), guide = "none") +
-    scale_fill_manual(values = group_colors, name = group) +
+    scale_color_manual(values = cat_c_colors, name = cat_c, breaks = names(cat_c_colors), guide = "none")
+  
+  # Add fill scale for groups if group is provided
+  if (!is.null(group)) {
+    p <- p +
+      scale_fill_manual(values = group_colors, name = group)
+  }
+  
+  p <- p +
     scale_x_discrete(limits = levels(plot_data[[cat_a]])) +
     scale_y_discrete(limits = levels(plot_data[[cat_b]])) +
     custom_theme +
@@ -148,45 +193,56 @@ dice_plot <- function(data,
     ) +
     labs(x = "", y = "") +
     coord_fixed(ratio = 1) +
-    ggtitle(title) + 
-    guides(fill = "none")
+    ggtitle(title)
   
-  # Create custom legends
-  combined_legend_plot <- create_custom_legends(data, cat_c, group, cat_c_colors, group_colors, var_positions, num_vars, dot_size)
+  # Add guides based on whether group is provided
+  if (!is.null(group)) {
+    p <- p + guides(fill = "none")
+  }
   
-
-  # Define legend dimensions
-  legend_width <- 0.25  # Adjust as needed
-  legend_height <- 0.5  # Adjust based on the number of legend items
+  # Create custom legends only if group is provided
+  if (!is.null(group)) {
+    combined_legend_plot <- create_custom_legends(data, cat_c, group, cat_c_colors, group_colors, var_positions, num_vars, dot_size)
+    
+    # Define legend dimensions
+    legend_width <- 0.25  # Adjust as needed
+    legend_height <- 0.5  # Adjust based on the number of legend items
+    
+    # Combine the main plot and legends without 'preserve = "aspect"'
+    combined_plot <- ggdraw() +
+      draw_plot(
+        p, 
+        x = 0, 
+        y = 0, 
+        width = 1 - legend_width, 
+        height = 1
+      ) +
+      draw_plot(
+        combined_legend_plot, 
+        x = 1 - legend_width, 
+        y = (1 - legend_height) / 2,  # Center vertically
+        width = legend_width, 
+        height = legend_height
+        # Removed preserve = "aspect"
+      )
+  } else {
+    combined_plot <- p
+  }
   
-  # Combine the main plot and legends without 'preserve = "aspect"'
-  combined_plot <- ggdraw() +
-    draw_plot(
-      p, 
-      x = 0, 
-      y = 0, 
-      width = 1 - legend_width, 
-      height = 1
-    ) +
-    draw_plot(
-      combined_legend_plot, 
-      x = 1 - legend_width, 
-      y = (1 - legend_height),  # Center vertically
-      width = legend_width, 
-      height = legend_height
-      # Removed preserve = "aspect"
-    )
   # Dynamic Plot Sizing and Saving
   n_cat_a <- length(unique(plot_data[[cat_a]]))
   n_cat_b <- length(unique(plot_data[[cat_b]]))
   base_width_per_cat_a <- 0.5  # inches
   base_height_per_cat_b <- 0.3 # inches
-  total_width <- max(n_cat_a * base_width_per_cat_a + 6, 4)
+  total_width <- max(n_cat_a * base_width_per_cat_a + ifelse(!is.null(group), 3, 6), 4)
   total_height <- max(n_cat_b * base_height_per_cat_b + 3, 4)  
   
   # Save the combined plot
-  if (!is.null(output_str) && !is.null(plot_path)) {
-    ggsave(file.path(plot_path, paste0(output_str, "_dice_plot", format)),
+  if (!is.null(output_str)) {
+    # Ensure plot_path is defined or set a default
+    plot_path <- "."  # Default to current directory if not defined elsewhere
+    ggsave(filename = paste0(output_str, "_dice_plot", format),
+           path = plot_path,
            plot = combined_plot, 
            width = total_width, 
            height = total_height, 
