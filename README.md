@@ -5,7 +5,9 @@
 > Fudging around with the paramters for a proper legend might be necessary
 
 > [!Warning]
-> For using the latest version of the code please pull the develop branch
+> This is the latest version of the code, changes in functionality compared to the latest CRAN packages are possible
+> please refer to the change-log
+>
 
 # Change-log
 - rename files from dice_plot/ domino_plot to diceplot/dominoplot
