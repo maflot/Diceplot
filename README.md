@@ -4,6 +4,9 @@
 > This repository is in active development
 > Fudging around with the paramters for a proper legend might be necessary
 
+> [!Warning]
+> For using the latest version of the code please pull the develop branch
+
 # DicePlot
 
 The **DicePlot** package allows you to create visualizations (dice plots) for datasets with more than two categorical variables and additional continuous variables. This tool is particularly useful for exploring complex categorical data and their relationships with continuous variables.
