@@ -7,6 +7,13 @@
 > [!Warning]
 > For using the latest version of the code please pull the develop branch
 
+# Change-log
+- rename files from dice_plot/ domino_plot to diceplot/dominoplot
+- adapted dice_plot arguments:
+  - ```group``` variable is not needed anymore for running the code
+  - ```group_color``` is set automatically using RColorBrewer
+
+
 # DicePlot
 
 The **DicePlot** package allows you to create visualizations (dice plots) for datasets with more than two categorical variables and additional continuous variables. This tool is particularly useful for exploring complex categorical data and their relationships with continuous variables.
