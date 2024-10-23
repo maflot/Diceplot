@@ -1,15 +1,3 @@
-# Load necessary libraries
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-library(tibble)
-library(rlang)
-library(cowplot)
-library(stats)
-library(grid)
-library(cowplot)
-library(RColorBrewer)
-
 utils::globalVariables(c(
   "unique_groups", "x_min", "x_max", "y_min", "y_max","var",
   "x_pos", "y_pos", "x_offset", "y_offset", "x", "y",
@@ -35,12 +23,10 @@ default_cat_c_colors <- c(
 #' @param cat_b A string representing the column name in `data` for the second categorical variable.
 #' @param cat_c A string representing the column name in `data` for the third categorical variable.
 #' @param group A string representing the column name in `data` for the grouping variable.
-#' @param output_str An optional string to customize the filename if `plot_path` is specified. Defaults to `NULL`.
 #' @param group_alpha A numeric value for the transparency level of the group rectangles. Default is `0.5`.
 #' @param title An optional string for the plot title. Defaults to `NULL`.
 #' @param cat_c_colors A named vector of colors for `cat_c` categories. Defaults to `NULL` (automatically generated).
 #' @param group_colors A named vector of colors for the group variable. Defaults to `NULL` (automatically generated).
-#' @param format A string specifying the output file format if saving the plot. Defaults to `".pdf"`.
 #' @param custom_theme A ggplot2 theme for customizing the plot's appearance. Defaults to `theme_minimal()`.
 #'
 #' @return A ggplot object representing the dice plot.
@@ -57,12 +43,10 @@ dice_plot <- function(data,
                       cat_b, 
                       cat_c, 
                       group = NULL, 
-                      output_str = NULL, 
                       group_alpha = 0.5,
                       title = NULL,
                       cat_c_colors = NULL, 
                       group_colors = NULL, 
-                      format = ".pdf",
                       custom_theme = theme_minimal()) {
   
   num_vars <- length(unique(data[[cat_c]]))
@@ -236,18 +220,6 @@ dice_plot <- function(data,
   base_height_per_cat_b <- 0.3 # inches
   total_width <- max(n_cat_a * base_width_per_cat_a + ifelse(!is.null(group), 3, 6), 4)
   total_height <- max(n_cat_b * base_height_per_cat_b + 3, 4)  
-  
-  # Save the combined plot
-  if (!is.null(output_str)) {
-    # Ensure plot_path is defined or set a default
-    plot_path <- "."  # Default to current directory if not defined elsewhere
-    ggsave(filename = paste0(output_str, "_dice_plot", format),
-           path = plot_path,
-           plot = combined_plot, 
-           width = total_width, 
-           height = total_height, 
-           limitsize = FALSE)
-  }
   
   return(combined_plot)
 }

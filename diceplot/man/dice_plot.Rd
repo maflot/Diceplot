@@ -9,14 +9,11 @@ dice_plot(
   cat_a,
   cat_b,
   cat_c,
-  group,
-  plot_path = NULL,
-  output_str = NULL,
+  group = NULL,
   group_alpha = 0.5,
   title = NULL,
   cat_c_colors = NULL,
   group_colors = NULL,
-  format = ".pdf",
   custom_theme = theme_minimal()
 )
 }
@@ -31,10 +28,6 @@ dice_plot(
 
 \item{group}{A string representing the column name in \code{data} for the grouping variable.}
 
-\item{plot_path}{A string specifying the file path where the plot will be saved. Defaults to \code{NULL} (no file output).}
-
-\item{output_str}{An optional string to customize the filename if \code{plot_path} is specified. Defaults to \code{NULL}.}
-
 \item{group_alpha}{A numeric value for the transparency level of the group rectangles. Default is \code{0.5}.}
 
 \item{title}{An optional string for the plot title. Defaults to \code{NULL}.}
@@ -42,8 +35,6 @@ dice_plot(
 \item{cat_c_colors}{A named vector of colors for \code{cat_c} categories. Defaults to \code{NULL} (automatically generated).}
 
 \item{group_colors}{A named vector of colors for the group variable. Defaults to \code{NULL} (automatically generated).}
-
-\item{format}{A string specifying the output file format if saving the plot. Defaults to \code{".pdf"}.}
 
 \item{custom_theme}{A ggplot2 theme for customizing the plot's appearance. Defaults to \code{theme_minimal()}.}
 }

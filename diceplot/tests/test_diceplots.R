@@ -60,11 +60,9 @@ dice_plot(data = data,
           cat_b = "Pathway", 
           cat_c = "PathologyVariable", 
           group = "Group",
-          output_str = "dice_plot_3_example", 
           group_alpha = 0.6,
           title = "Dice Plot with 3 Pathology Variables",
           cat_c_colors = cat_c_colors, 
-          format = ".png",
           custom_theme = theme_minimal())
 
 
@@ -122,11 +120,9 @@ dice_plot(data = data,
           cat_b = "Pathway", 
           cat_c = "PathologyVariable", 
           group = "Group",
-          output_str = "dice_plot_4_example", 
           group_alpha = 0.6,
           title = "Dummy Dice Plot with Pathology Variables",
           cat_c_colors = cat_c_colors, 
-          format = ".png",
           custom_theme = theme_minimal())
 
 
@@ -162,11 +158,9 @@ dice_plot(data = data,
           cat_b = "Pathway", 
           cat_c = "PathologyVariable", 
           group = "Group",
-          output_str = "dice_plot_5_example", 
           group_alpha = 0.6,
           title = "Dice Plot with 5 Pathology Variables",
           cat_c_colors = cat_c_colors, 
-          format = ".png",
           custom_theme = theme_minimal())
 
 
@@ -203,11 +197,9 @@ dice_plot(data = data,
           cat_b = "Pathway", 
           cat_c = "PathologyVariable", 
           group = "Group",
-          output_str = "dice_plot_6_example", 
           group_alpha = 0.6,
           title = "Dice Plot with 6 Pathology Variables",
           cat_c_colors = cat_c_colors, 
-          format = ".png",
           custom_theme = theme_minimal())
 
 

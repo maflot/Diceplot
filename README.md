@@ -12,7 +12,10 @@
 - adapted dice_plot arguments:
   - ```group``` variable is not needed anymore for running the code
   - ```group_color``` is set automatically using RColorBrewer
-
+  - dice_plot is now returning the ggplot object and removed the option to save the plot
+    - ```plot_path``` removed
+    - ```format```    removed
+    - ```output_string``` removed 
 
 # DicePlot
 
