@@ -59,7 +59,7 @@ p <- domino_plot(
   switch_axis = FALSE,
   min_dot_size = 1,
   max_dot_size = 5,
-  output_file = "domino_plot_example.png"
+  output_file = "dominoplot_example.png"
 )
 
 # Display the plot

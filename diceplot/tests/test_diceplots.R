@@ -37,12 +37,6 @@ pathway_groups <- data.frame(
   stringsAsFactors = FALSE
 )
 
-# Define group colors
-group_colors <- c(
-  "Linked" = "#333333",
-  "UnLinked" = "#888888",
-  "Other" = "#DDDDDD"
-)
 
 # Create dummy data
 set.seed(123)
@@ -66,13 +60,9 @@ dice_plot(data = data,
           cat_b = "Pathway", 
           cat_c = "PathologyVariable", 
           group = "Group",
-          plot_path = plot_path, 
-          output_str = "dice_plot_3_example", 
           group_alpha = 0.6,
           title = "Dice Plot with 3 Pathology Variables",
           cat_c_colors = cat_c_colors, 
-          group_colors = group_colors, 
-          format = ".png",
           custom_theme = theme_minimal())
 
 
@@ -107,12 +97,6 @@ pathway_groups <- data.frame(
   stringsAsFactors = FALSE
 )
 
-# Update group colors to shades of greys
-group_colors <- c(
-  "Linked" = "#333333",
-  "UnLinked" = "#888888",
-  "Other" = "#DDDDDD"
-)
 
 # Create dummy data
 set.seed(123)
@@ -130,24 +114,15 @@ data <- data %>%
 data <- data %>%
   left_join(pathway_groups, by = "Pathway")
 
-group_colors <- c(
-  "Linked" = "#333333",
-  "UnLinked" = "#888888",
-  "Other" = "#DDDDDD"
-)
 # Use the modified dice_plot function
 dice_plot(data = data, 
           cat_a = "CellType", 
           cat_b = "Pathway", 
           cat_c = "PathologyVariable", 
           group = "Group",
-          plot_path = plot_path, 
-          output_str = "dice_plot_4_example", 
           group_alpha = 0.6,
           title = "Dummy Dice Plot with Pathology Variables",
           cat_c_colors = cat_c_colors, 
-          group_colors = group_colors, 
-          format = ".png",
           custom_theme = theme_minimal())
 
 
@@ -183,13 +158,9 @@ dice_plot(data = data,
           cat_b = "Pathway", 
           cat_c = "PathologyVariable", 
           group = "Group",
-          plot_path = plot_path, 
-          output_str = "dice_plot_5_example", 
           group_alpha = 0.6,
           title = "Dice Plot with 5 Pathology Variables",
           cat_c_colors = cat_c_colors, 
-          group_colors = group_colors, 
-          format = ".png",
           custom_theme = theme_minimal())
 
 
@@ -226,13 +197,9 @@ dice_plot(data = data,
           cat_b = "Pathway", 
           cat_c = "PathologyVariable", 
           group = "Group",
-          plot_path = plot_path, 
-          output_str = "dice_plot_6_example", 
           group_alpha = 0.6,
           title = "Dice Plot with 6 Pathology Variables",
           cat_c_colors = cat_c_colors, 
-          group_colors = group_colors, 
-          format = ".png",
           custom_theme = theme_minimal())
 
 
