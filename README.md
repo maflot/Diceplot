@@ -1,8 +1,11 @@
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/diceplot)](https://CRAN.R-project.org/package=diceplot)
 
-> [!CAUTION]
-> Not stable, preliminary repository.
+> [!Note]
+> This repository is in active development
 > Fudging around with the paramters for a proper legend might be necessary
+
+> [!Warning]
+> For using the latest version of the code please pull the develop branch
 
 # DicePlot
 
@@ -32,9 +35,6 @@ install.packages(c(
 ```
 
 ### 3.1 Install DicePlot from GitHub
-> [!CAUTION]
-> Not feasable as the repoistory is still private
-
 
 You can install the `DicePlot` package directly from GitHub using the `devtools` package
 
@@ -148,12 +148,6 @@ This code will generate a dice plot visualizing the relationships between the ca
 ## Use the dice plots in a real programming language
 for using dice plots in python please refer to [pyDicePlot](https://github.com/maflot/pyDicePlot/tree/main)
 
-## Sample Output
-
-![Sample Dice with 3 categories Plot](./sample_plots/dice_plot_3_example_dice_plot.png)
-![Sample Dice with 6 categories Plot](./sample_plots/dice_plot_5_example_dice_plot.png)
-
-*Figure: A sample dice plot generated using the `DicePlot` package.*
 
 ## Documentation
 
