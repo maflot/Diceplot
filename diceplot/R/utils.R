@@ -124,24 +124,16 @@ perform_clustering <- function(data, cat_a, cat_b, cat_c) {
 #' @importFrom rlang sym
 #' @export
 order_cat_b <- function(data, group, cat_b, group_colors, reverse_order = FALSE) {
-  data <- data %>%
-    mutate(!!sym(group) := factor(!!sym(group), levels = names(group_colors)))
-  
-  counts <- data %>%
+  cat_b_order <- data %>%
+    mutate(!!sym(group) := factor(!!sym(group), levels = rev(names(group_colors)))) %>%  # Reverse to match legacy code
     group_by(!!sym(group), !!sym(cat_b)) %>%
-    summarise(count = n(), .groups = "drop")
-  
-  counts <- counts %>%
-    group_by(!!sym(group)) %>%
-    arrange(
-      if (reverse_order) count else desc(count),
-      !!sym(cat_b),
-      .by_group = TRUE
-    )
-  
-  cat_b_order <- counts %>%
+    summarise(count = n(), .groups = "drop") %>%
+    arrange(!!sym(group), desc(count), !!sym(cat_b)) %>%
     pull(!!sym(cat_b)) %>%
     unique()
+  if (reverse_order) {
+    cat_b_order <- rev(cat_b_order)
+  }
   
   return(cat_b_order)
 }
