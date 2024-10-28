@@ -4,7 +4,7 @@
 \alias{order_cat_b}
 \title{Order Category B}
 \usage{
-order_cat_b(data, group, cat_b, group_colors)
+order_cat_b(data, group, cat_b, group_colors, reverse_order = FALSE)
 }
 \arguments{
 \item{data}{A data frame containing the variables.}
@@ -14,6 +14,8 @@ order_cat_b(data, group, cat_b, group_colors)
 \item{cat_b}{The name of the column representing category B.}
 
 \item{group_colors}{A named vector of colors for each group. The names correspond to group names.}
+
+\item{reverse_order}{Reverse the ordering? Default is FALSE.}
 }
 \value{
 A vector of category B labels ordered according to group and count.
