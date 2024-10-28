@@ -2,12 +2,6 @@
 [![CRAN Downloads](https://cranlogs.r-pkg.org/badges/grand-total/diceplot)](https://CRAN.R-project.org/package=diceplot)
 > [!Note]
 > This repository is in active development
-> Fudging around with the paramters for a proper legend might be necessary
-
-> [!Warning]
-> This is the latest version of the code, changes in functionality compared to the latest CRAN packages are possible.    
-> please refer to the change-log
->
 
 # Change-log v0.1.2
   - rename files from dice_plot/ domino_plot to diceplot/dominoplot
