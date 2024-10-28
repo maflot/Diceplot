@@ -8,3 +8,9 @@
 .Rproj.user
 **experiments
 **Restart**
+**renv**
+.Rprofile
+.Rbuildignore
+.DS_Store
+build.R
+diceplot.Rcheck/**

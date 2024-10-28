@@ -63,7 +63,8 @@ create_and_plot_dice <- function(pathology_variables, cat_c_colors, title, cell_
             cat_c_colors = cat_c_colors, 
             custom_theme = theme_minimal(),
             min_dot_size = min_dot_size,
-            max_dot_size = max_dot_size)
+            max_dot_size = max_dot_size
+            )
 }
 
 
