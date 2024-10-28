@@ -40,8 +40,7 @@ create_and_plot_dice <- function(pathology_variables, cat_c_colors, title, cell_
   # Create dummy data
   set.seed(123)
   data <- expand.grid(CellType = cell_types, Pathway = pathways, stringsAsFactors = FALSE)
-  
-  # Assign random pathology variables to each combination
+
   data <- data %>%
     rowwise() %>%
     mutate(
@@ -66,6 +65,7 @@ create_and_plot_dice <- function(pathology_variables, cat_c_colors, title, cell_
             min_dot_size = min_dot_size,
             max_dot_size = max_dot_size)
 }
+
 
 # First plot with 3 pathology variables
 pathology_variables_3 <- c("Stroke", "Cancer", "Flu")

@@ -25,6 +25,7 @@ utils::globalVariables(c(
 #' @param legend_height Relative width of your legend. Default is 0.5.
 #' @param base_width_per_cat_a Used for dynamically scaling the width. Default is 0.5.
 #' @param base_height_per_cat_b Used for dynamically scaling the height. Default is 0.3.
+#' @param reverse_ordering Should the cluster ordering be reversed?. Default is FALSE.
 #'
 #' @return A ggplot object representing the dice plot.
 #' @importFrom ggplot2 ggplot aes geom_rect geom_point scale_color_manual scale_fill_manual scale_x_discrete scale_y_discrete theme element_text element_blank unit labs coord_fixed ggtitle guides ggsave theme_minimal
@@ -50,20 +51,14 @@ dice_plot <- function(data,
                       legend_width = 0.25,
                       legend_height = 0.5,
                       base_width_per_cat_a = 0.5,  
-                      base_height_per_cat_b = 0.3 
+                      base_height_per_cat_b = 0.3,
+                      reverse_ordering = FALSE
                       ) {
   
   num_vars <- length(unique(data[[cat_c]]))
   
-  # Validate number of variables
-  if (num_vars < 1 || num_vars > 9) {
-    stop("Unsupported number of categories for cat_c. Must be between 1 and 9.")
-  }
-  
-  # Set default cat_c_colors using ColorBrewer if not provided
   if (is.null(cat_c_colors)) {
     available_colors <- RColorBrewer::brewer.pal.info
-    # Choose a palette that can handle the number of categories
     suitable_palettes <- rownames(available_colors[available_colors$category == "qual" & available_colors$maxcolors >= num_vars, ])
     if (length(suitable_palettes) == 0) {
       stop("No suitable ColorBrewer palette found for the number of categories in cat_c.")
@@ -74,9 +69,7 @@ dice_plot <- function(data,
     cat_c_colors <- default_cat_c_colors
   }
   
-  # Handle group-related logic only if group is provided
   if (!is.null(group)) {
-    # Assign default group colors using ColorBrewer if not provided
     if (is.null(group_colors)) {
       unique_groups <- unique(data[[group]])
       num_groups <- length(unique_groups)
@@ -121,7 +114,7 @@ dice_plot <- function(data,
   var_positions <- create_var_positions(cat_c_colors, num_vars)
   cat_a_order <- perform_clustering(data, cat_a, cat_b, cat_c)
   if (!is.null(group)) {
-    cat_b_order <- order_cat_b(data, group, cat_b, group_colors)
+    cat_b_order <- order_cat_b(data, group, cat_b, group_colors, reverse_ordering)
   } else {
     cat_b_order <- levels(data[[cat_b]])
   }

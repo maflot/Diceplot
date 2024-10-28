@@ -20,7 +20,8 @@ dice_plot(
   legend_width = 0.25,
   legend_height = 0.5,
   base_width_per_cat_a = 0.5,
-  base_height_per_cat_b = 0.3
+  base_height_per_cat_b = 0.3,
+  reverse_ordering = FALSE
 )
 }
 \arguments{
@@ -55,6 +56,8 @@ dice_plot(
 \item{base_width_per_cat_a}{Used for dynamically scaling the width. Default is 0.5.}
 
 \item{base_height_per_cat_b}{Used for dynamically scaling the height. Default is 0.3.}
+
+\item{reverse_ordering}{Should the cluster ordering be reversed?. Default is FALSE.}
 }
 \value{
 A ggplot object representing the dice plot.

@@ -107,6 +107,7 @@ perform_clustering <- function(data, cat_a, cat_b, cat_c) {
 #' @param group The name of the column representing the grouping variable.
 #' @param cat_b The name of the column representing category B.
 #' @param group_colors A named vector of colors for each group. The names correspond to group names.
+#' @param reverse_order Reverse the ordering? Default is FALSE.
 #' @return A vector of category B labels ordered according to group and count.
 #' @examples
 #' library(dplyr)
@@ -122,7 +123,7 @@ perform_clustering <- function(data, cat_a, cat_b, cat_c) {
 #' @importFrom data.table :=
 #' @importFrom rlang sym
 #' @export
-order_cat_b <- function(data, group, cat_b, group_colors) {
+order_cat_b <- function(data, group, cat_b, group_colors, reverse_order = FALSE) {
   cat_b_order <- data %>%
     mutate(!!sym(group) := factor(!!sym(group), levels = rev(names(group_colors)))) %>%  # Reverse to match legacy code
     group_by(!!sym(group), !!sym(cat_b)) %>%
@@ -130,6 +131,10 @@ order_cat_b <- function(data, group, cat_b, group_colors) {
     arrange(!!sym(group), desc(count), !!sym(cat_b)) %>%
     pull(!!sym(cat_b)) %>%
     unique()
+  if (reverse_order) {
+    cat_b_order <- rev(cat_b_order)
+  }
+  
   return(cat_b_order)
 }
 
