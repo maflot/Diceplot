@@ -162,9 +162,14 @@ dice_plot(
   max_dot_size = 4
 )
 ```
+Explanation:
 
-This code will generate a dice plot visualizing the relationships between the categorical variables `Category1`, `Category2`, `Category3`, and the continuous variable `Value`.
+	-	Data Creation: We create a data frame that contains all combinations of cell types and pathways.
+	-	Assign Pathology Variables: For each combination, we randomly assign one or more pathology variables.
+	-	Merge Groups: We add the group information to each pathway.
+	-	Plotting: We directly call dice_plot to generate and display the dice plot with the specified parameters.
 
+This code example provides a clear definition of the data and demonstrates how to create a dice plot without using a nested function.
 ## Use the dice plots in a real programming language
 for using dice plots in python please refer to [pyDicePlot](https://github.com/maflot/pyDicePlot/tree/main)
 
