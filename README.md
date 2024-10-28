@@ -10,18 +10,18 @@
 >
 
 # Change-log v0.1.2
-- rename files from dice_plot/ domino_plot to diceplot/dominoplot
-- adapted dice_plot arguments:
-  - ```group``` variable is not needed anymore for running the code
-  - ```group_color``` is set automatically using RColorBrewer
-  - dice_plot is now returning the ggplot object and removed the option to save the plot
-    - ```plot_path``` removed
-    - ```format```    removed
-    - ```output_string``` removed
-  - ```max_dot_size``` and ```min_dot_size``` as additional arguments to modify your plot.
-  - ```legend_width``` and ```legend_height``` as additional arguments to modify your plots legend.
-  - ```base_width_per_cat_a``` and ```base_height_per_cat_b``` as additional arguments to modify your plots legend.
-  - ```reverse_ordering``` reverse the clustering order if wanted
+  - rename files from dice_plot/ domino_plot to diceplot/dominoplot
+  - adapted dice_plot arguments:
+    - ```group``` variable is not needed anymore for running the code
+    - ```group_color``` is set automatically using RColorBrewer
+    - dice_plot is now returning the ggplot object and removed the option to save the plot
+      - ```plot_path``` removed
+      - ```format```    removed
+      - ```output_string``` removed
+    - ```max_dot_size``` and ```min_dot_size``` as additional arguments to modify your plot.
+    - ```legend_width``` and ```legend_height``` as additional arguments to modify your plots legend.
+    - ```base_width_per_cat_a``` and ```base_height_per_cat_b``` as additional arguments to modify your plots legend.
+    - ```reverse_ordering``` reverse the clustering order if wanted
 
 # DicePlot
 
@@ -121,11 +121,11 @@ cat_c_colors <- setNames(colors, pathology_variables)
 ```
 Explanation:
 
-	-	Cell Types: A list of different cell types involved in the study.
-	-	Pathways: Biological pathways relevant to the cell types.
-	-	Pathway Groups: Categorization of pathways into ‘Linked’, ‘UnLinked’, or ‘Other’.
-	-	Pathology Variables: Medical conditions or variables of interest.
-	-	Colors Assignment: Assigning a unique color to each pathology variable for visualization.
+-	Cell Types: A list of different cell types involved in the study.
+-	Pathways: Biological pathways relevant to the cell types.
+-	Pathway Groups: Categorization of pathways into ‘Linked’, ‘UnLinked’, or ‘Other’.
+-	Pathology Variables: Medical conditions or variables of interest.
+-	Colors Assignment: Assigning a unique color to each pathology variable for visualization.
 
 Function to Create and Plot Dice Plots
 Now we finalize the data and plot the diceplot
@@ -164,10 +164,10 @@ dice_plot(
 ```
 Explanation:
 
-	-	Data Creation: We create a data frame that contains all combinations of cell types and pathways.
-	-	Assign Pathology Variables: For each combination, we randomly assign one or more pathology variables.
-	-	Merge Groups: We add the group information to each pathway.
-	-	Plotting: We directly call dice_plot to generate and display the dice plot with the specified parameters.
+-	Data Creation: We create a data frame that contains all combinations of cell types and pathways.
+-	Assign Pathology Variables: For each combination, we randomly assign one or more pathology variables.
+-	Merge Groups: We add the group information to each pathway.
+-	Plotting: We directly call dice_plot to generate and display the dice plot with the specified parameters.
 
 This code example provides a clear definition of the data and demonstrates how to create a dice plot without using a nested function.
 ## Use the dice plots in a real programming language
