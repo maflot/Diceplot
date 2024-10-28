@@ -14,7 +14,9 @@ dice_plot(
   title = NULL,
   cat_c_colors = NULL,
   group_colors = NULL,
-  custom_theme = theme_minimal()
+  custom_theme = theme_minimal(),
+  max_dot_size = 5,
+  min_dot_size = 2
 )
 }
 \arguments{
@@ -37,6 +39,10 @@ dice_plot(
 \item{group_colors}{A named vector of colors for the group variable. Defaults to \code{NULL} (automatically generated).}
 
 \item{custom_theme}{A ggplot2 theme for customizing the plot's appearance. Defaults to \code{theme_minimal()}.}
+
+\item{max_dot_size}{Maximal dot size for the plot to scale the dot sizes.}
+
+\item{min_dot_size}{Minimal dot size for the plot to scale the dot sizes.}
 }
 \value{
 A ggplot object representing the dice plot.
