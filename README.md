@@ -90,7 +90,9 @@ library(tibble)
 library(grid)
 library(cowplot)
 library(RColorBrewer)
-
+```
+First, we define the cell types, pathways, pathway groups, pathology variables, and assign colors to pathology variables.
+```r
 # Define common variables
 cell_types <- c("Neuron", "Astrocyte", "Microglia", "Oligodendrocyte", "Endothelial")
 pathways <- c(
@@ -112,52 +114,52 @@ pathway_groups <- data.frame(
 
 pathology_variables <- c("Alzheimer's disease", "Cancer", "Flu", "ADHD", "Age", "Weight")
 
+# Assign colors to pathology variables
 n_colors <- length(pathology_variables)
 colors <- brewer.pal(n = n_colors, name = "Set1")
 cat_c_colors <- setNames(colors, pathology_variables)
+```
+Explanation:
 
+	-	Cell Types: A list of different cell types involved in the study.
+	-	Pathways: Biological pathways relevant to the cell types.
+	-	Pathway Groups: Categorization of pathways into ‘Linked’, ‘UnLinked’, or ‘Other’.
+	-	Pathology Variables: Medical conditions or variables of interest.
+	-	Colors Assignment: Assigning a unique color to each pathology variable for visualization.
+
+Function to Create and Plot Dice Plots
+Now we finalize the data and plot the diceplot
+
+```r
+# Create dummy data
+set.seed(123)
+data <- expand.grid(CellType = cell_types, Pathway = pathways, stringsAsFactors = FALSE)
+
+data <- data %>%
+  rowwise() %>%
+  mutate(
+    PathologyVariable = list(sample(pathology_variables, size = sample(1:length(pathology_variables), 1)))
+  ) %>%
+  unnest(cols = c(PathologyVariable))
 
 # Function to create and plot dice plots
-create_and_plot_dice <- function(pathology_variables, cat_c_colors, title, cell_types, pathways, pathway_groups, min_dot_size=3, max_dot_size=6) {
-  # Create dummy data
-  set.seed(123)
-  data <- expand.grid(CellType = cell_types, Pathway = pathways, stringsAsFactors = FALSE)
-
-  data <- data %>%
-    rowwise() %>%
-    mutate(
-      PathologyVariable = list(sample(pathology_variables, size = sample(1:length(pathology_variables), 1)))
-    ) %>%
-    unnest(cols = c(PathologyVariable))
+# Merge the group assignments into the data
+data <- data %>%
+  left_join(pathway_groups, by = "Pathway")
   
-  # Merge the group assignments into the data
-  data <- data %>%
-    left_join(pathway_groups, by = "Pathway")
-  
-  # Use the dice_plot function
-  dice_plot(data = data, 
-            cat_a = "CellType", 
-            cat_b = "Pathway", 
-            cat_c = "PathologyVariable", 
-            group = "Group",
-            group_alpha = 0.6,
-            title = title,
-            cat_c_colors = cat_c_colors, 
-            custom_theme = theme_minimal(),
-            min_dot_size = min_dot_size,
-            max_dot_size = max_dot_size)
-}
-
-
-# First plot with 3 pathology variables
-pathology_variables_3 <- c("Stroke", "Cancer", "Flu")
-create_and_plot_dice(
-  pathology_variables = pathology_variables_3,
-  cat_c_colors = cat_c_colors[pathology_variables_3],
-  title = "Dice Plot with 3 Pathology Variables",
-  cell_types = cell_types,
-  pathways = pathways,
-  pathway_groups = pathway_groups
+# Use the dice_plot function
+dice_plot(
+  data = data, 
+  cat_a = "CellType", 
+  cat_b = "Pathway", 
+  cat_c = "PathologyVariable", 
+  group = "Group",
+  group_alpha = 0.6,
+  title = "Dice Plot with 6 Pathology Variables",
+  cat_c_colors = cat_c_colors, 
+  custom_theme = theme_minimal(),
+  min_dot_size = 2,
+  max_dot_size = 4
 )
 ```
 
