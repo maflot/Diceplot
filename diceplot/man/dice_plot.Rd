@@ -16,7 +16,11 @@ dice_plot(
   group_colors = NULL,
   custom_theme = theme_minimal(),
   max_dot_size = 5,
-  min_dot_size = 2
+  min_dot_size = 2,
+  legend_width = 0.25,
+  legend_height = 0.5,
+  base_width_per_cat_a = 0.5,
+  base_height_per_cat_b = 0.3
 )
 }
 \arguments{
@@ -43,6 +47,14 @@ dice_plot(
 \item{max_dot_size}{Maximal dot size for the plot to scale the dot sizes.}
 
 \item{min_dot_size}{Minimal dot size for the plot to scale the dot sizes.}
+
+\item{legend_width}{Relative width of your legend. Default is 0.25.}
+
+\item{legend_height}{Relative width of your legend. Default is 0.5.}
+
+\item{base_width_per_cat_a}{Used for dynamically scaling the width. Default is 0.5.}
+
+\item{base_height_per_cat_b}{Used for dynamically scaling the height. Default is 0.3.}
 }
 \value{
 A ggplot object representing the dice plot.
