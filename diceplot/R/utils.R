@@ -234,6 +234,8 @@ prepare_box_data <- function(data, cat_a, cat_b, group, cat_a_order, cat_b_order
 #' @description
 #' Calculates the dot size based on the number of variables.
 #' @param num_vars Number of variables.
+#' @param max_size Maximal dot size for the plot to scale the dot sizes.
+#' @param min_size Minimal dot size for the plot to scale the dot sizes.
 #' @return A numeric value representing the dot size.
 #' @importFrom ggplot2 ggplot aes geom_point geom_rect scale_color_manual scale_fill_manual theme_void theme element_text element_blank margin coord_fixed geom_text ggtitle
 #' @importFrom cowplot plot_grid
@@ -241,9 +243,7 @@ prepare_box_data <- function(data, cat_a, cat_b, group, cat_a_order, cat_b_order
 #' @importFrom utils globalVariables
 #' @importFrom rlang sym
 #' @export
-calculate_dot_size <- function(num_vars) {
-  max_size <- 5   # Maximum dot size
-  min_size <- 2   # Minimum dot size
+calculate_dot_size <- function(num_vars, max_size, min_size) {
   size <- max(min_size, max_size - (num_vars - 1))
   return(size)
 }
@@ -369,3 +369,12 @@ create_custom_legends <- function(data, cat_c, group, cat_c_colors, group_colors
   
   return(combined_legend_plot)
 }
+
+
+get_dice_plot_example_data = function(n){
+#TODO  
+}
+
+
+
+

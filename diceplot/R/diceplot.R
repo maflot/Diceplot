@@ -28,6 +28,8 @@ default_cat_c_colors <- c(
 #' @param cat_c_colors A named vector of colors for `cat_c` categories. Defaults to `NULL` (automatically generated).
 #' @param group_colors A named vector of colors for the group variable. Defaults to `NULL` (automatically generated).
 #' @param custom_theme A ggplot2 theme for customizing the plot's appearance. Defaults to `theme_minimal()`.
+#' @param max_dot_size Maximal dot size for the plot to scale the dot sizes.
+#' @param min_dot_size Minimal dot size for the plot to scale the dot sizes.
 #'
 #' @return A ggplot object representing the dice plot.
 #' @importFrom ggplot2 ggplot aes geom_rect geom_point scale_color_manual scale_fill_manual scale_x_discrete scale_y_discrete theme element_text element_blank unit labs coord_fixed ggtitle guides ggsave theme_minimal
@@ -47,7 +49,9 @@ dice_plot <- function(data,
                       title = NULL,
                       cat_c_colors = NULL, 
                       group_colors = NULL, 
-                      custom_theme = theme_minimal()) {
+                      custom_theme = theme_minimal(),
+                      max_dot_size = 5,
+                      min_dot_size = 2) {
   
   num_vars <- length(unique(data[[cat_c]]))
   
@@ -115,32 +119,22 @@ dice_plot <- function(data,
   
   # Define variable positions dynamically
   var_positions <- create_var_positions(cat_c_colors, num_vars)
-  
-  # Perform hierarchical clustering
   cat_a_order <- perform_clustering(data, cat_a, cat_b, cat_c)
-  
-  # Order cat_b based on group and frequency if group is provided
   if (!is.null(group)) {
     cat_b_order <- order_cat_b(data, group, cat_b, group_colors)
   } else {
     cat_b_order <- levels(data[[cat_b]])
   }
   
-  # Prepare plot data
   plot_data <- prepare_plot_data(data, cat_a, cat_b, cat_c, group, var_positions, cat_a_order, cat_b_order)
-  
-  # Prepare box data
   if (!is.null(group)) {
     box_data <- prepare_box_data(data, cat_a, cat_b, group, cat_a_order, cat_b_order)
   }
   
-  # Calculate dynamic dot size
-  dot_size <- calculate_dot_size(num_vars)
+  dot_size <- calculate_dot_size(num_vars,max_dot_size,min_dot_size)
   
-  # Start building the main plot
   p <- ggplot()
   
-  # Add group-related layers if group is provided
   if (!is.null(group)) {
     p <- p +
       geom_rect(data = box_data, 

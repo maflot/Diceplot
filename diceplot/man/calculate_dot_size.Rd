@@ -4,10 +4,14 @@
 \alias{calculate_dot_size}
 \title{Calculate Dynamic Dot Size}
 \usage{
-calculate_dot_size(num_vars)
+calculate_dot_size(num_vars, max_size, min_size)
 }
 \arguments{
 \item{num_vars}{Number of variables.}
+
+\item{max_size}{Maximal dot size for the plot to scale the dot sizes.}
+
+\item{min_size}{Minimal dot size for the plot to scale the dot sizes.}
 }
 \value{
 A numeric value representing the dot size.

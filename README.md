@@ -15,7 +15,8 @@
   - dice_plot is now returning the ggplot object and removed the option to save the plot
     - ```plot_path``` removed
     - ```format```    removed
-    - ```output_string``` removed 
+    - ```output_string``` removed
+    - ```max_dot_size``` and ```min_dot_size``` as additional arguments to modify your plot
 
 # DicePlot
 
