@@ -51,8 +51,8 @@ create_var_positions <- function(cat_c_colors, num_vars) {
          ),
          "2" = data.frame(
            var = factor(names(cat_c_colors), levels = names(cat_c_colors)),
-           x_offset = c(-0.1, 0.1),
-           y_offset = c(0, 0)
+           x_offset = c(-0.2, 0.2),
+           y_offset = c(0.2, -0.2)
          ),
          "1" = data.frame(
            var = factor(names(cat_c_colors), levels = names(cat_c_colors)),

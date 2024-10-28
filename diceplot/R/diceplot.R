@@ -5,15 +5,6 @@ utils::globalVariables(c(
   "Celltype", "avg_log2FC", "p_val_adj", "log_p_val_adj"
 ))
 
-default_cat_c_colors <- c(
-  "Var1" = "#d5cccd",
-  "Var2" = "#cb9992",
-  "Var3" = "#ad310f",
-  "Var4" = "#7e2a20",
-  "Var5" = "#FFD700",
-  "Var6" = "#FF6622"
-)
-
 #' Dice Plot Visualization
 #'
 #' This function generates a custom plot based on three categorical variables and a group variable. It adapts to the number of unique categories in `cat_c` and allows customization of various plot aesthetics.
@@ -30,6 +21,10 @@ default_cat_c_colors <- c(
 #' @param custom_theme A ggplot2 theme for customizing the plot's appearance. Defaults to `theme_minimal()`.
 #' @param max_dot_size Maximal dot size for the plot to scale the dot sizes.
 #' @param min_dot_size Minimal dot size for the plot to scale the dot sizes.
+#' @param legend_width Relative width of your legend. Default is 0.25.
+#' @param legend_height Relative width of your legend. Default is 0.5.
+#' @param base_width_per_cat_a Used for dynamically scaling the width. Default is 0.5.
+#' @param base_height_per_cat_b Used for dynamically scaling the height. Default is 0.3.
 #'
 #' @return A ggplot object representing the dice plot.
 #' @importFrom ggplot2 ggplot aes geom_rect geom_point scale_color_manual scale_fill_manual scale_x_discrete scale_y_discrete theme element_text element_blank unit labs coord_fixed ggtitle guides ggsave theme_minimal
@@ -51,7 +46,12 @@ dice_plot <- function(data,
                       group_colors = NULL, 
                       custom_theme = theme_minimal(),
                       max_dot_size = 5,
-                      min_dot_size = 2) {
+                      min_dot_size = 2,
+                      legend_width = 0.25,
+                      legend_height = 0.5,
+                      base_width_per_cat_a = 0.5,  
+                      base_height_per_cat_b = 0.3 
+                      ) {
   
   num_vars <- length(unique(data[[cat_c]]))
   
@@ -181,10 +181,7 @@ dice_plot <- function(data,
   # Create custom legends only if group is provided
   if (!is.null(group)) {
     combined_legend_plot <- create_custom_legends(data, cat_c, group, cat_c_colors, group_colors, var_positions, num_vars, dot_size)
-    
-    # Define legend dimensions
-    legend_width <- 0.25  # Adjust as needed
-    legend_height <- 0.5  # Adjust based on the number of legend items
+
     
     # Combine the main plot and legends without 'preserve = "aspect"'
     combined_plot <- ggdraw() +
@@ -210,8 +207,6 @@ dice_plot <- function(data,
   # Dynamic Plot Sizing and Saving
   n_cat_a <- length(unique(plot_data[[cat_a]]))
   n_cat_b <- length(unique(plot_data[[cat_b]]))
-  base_width_per_cat_a <- 0.5  # inches
-  base_height_per_cat_b <- 0.3 # inches
   total_width <- max(n_cat_a * base_width_per_cat_a + ifelse(!is.null(group), 3, 6), 4)
   total_height <- max(n_cat_b * base_height_per_cat_b + 3, 4)  
   
