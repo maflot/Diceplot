@@ -35,8 +35,11 @@ install.packages(c(
     "ggdendro"
 ))
 ```
-
-### 3.1 Install DicePlot from GitHub
+### 3.0 install Diceplot directly from CRAN
+```r
+install.packages("diceplot")
+```
+### 3.1 Install Diceplot from GitHub
 
 You can install the `DicePlot` package directly from GitHub using the `devtools` package
 
@@ -46,7 +49,7 @@ install.packages("devtools")
 # Install DicePlot from GitHub
 devtools::install_github("maflot/DicePlot/diceplot")
 ```
-### 3.2 Install DicePlot from files
+### 3.2 Install Diceplot from files
 Download the repository and run following code to install the package
 ```r
 install.packages("$path on your local machine$/DicePlot/diceplot",repos = NULL, type="source")
