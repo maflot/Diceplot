@@ -17,6 +17,12 @@ To install the **DicePlot** package, follow these steps:
 ### 1. Install R
 
 Ensure that you have R installed on your system. You can download it from [The Comprehensive R Archive Network (CRAN)](https://cran.r-project.org/).
+Or use conda:
+
+```r
+conda create -n diceplot -c conda-forge r-base -y
+conda activate diceplot
+```
 
 ### 2. Install Required Packages
 
