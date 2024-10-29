@@ -60,7 +60,7 @@ install.packages("$path on your local machine$/DicePlot/diceplot",repos = NULL, 
 After installation, load the `DicePlot` package into your R session:
 
 ```r
-library(DicePlot)
+library(diceplot)
 ```
 
 ## Example Usage
@@ -101,7 +101,7 @@ pathway_groups <- data.frame(
   stringsAsFactors = FALSE
 )
 
-pathology_variables <- c("Alzheimer's disease", "Cancer", "Flu", "ADHD", "Age", "Weight")
+pathology_variables <- c("AD", "Cancer", "Flu", "ADHD", "Age", "Weight")
 
 # Assign colors to pathology variables
 n_colors <- length(pathology_variables)
@@ -137,7 +137,7 @@ data <- data %>%
   left_join(pathway_groups, by = "Pathway")
   
 # Use the dice_plot function
-dice_plot(
+p = dice_plot(
   data = data, 
   cat_a = "CellType", 
   cat_b = "Pathway", 
@@ -150,6 +150,10 @@ dice_plot(
   min_dot_size = 2,
   max_dot_size = 4
 )
+
+print(p)
+# simply save the plot using the ggplot functions
+# ggsave("./diceplot_example.png",p)
 ```
 Explanation:
 
@@ -159,7 +163,11 @@ Explanation:
 -	Plotting: We directly call dice_plot to generate and display the dice plot with the specified parameters.
 
 This code example provides a clear definition of the data and demonstrates how to create a dice plot without using a nested function.
-## Use the dice plots in a real programming language
+
+### Output
+![Example output](diceplot_example.png)
+
+## Use the dice plots in python
 for using dice plots in python please refer to [pyDicePlot](https://github.com/maflot/pyDicePlot/tree/main)
 
 
