@@ -137,6 +137,8 @@ data <- data %>%
   left_join(pathway_groups, by = "Pathway")
   
 # Use the dice_plot function
+# min dot_size is giving the minimal size of a point size the dots can be
+# with larger dataframe it might be necessary to set it to a smaller value
 p = dice_plot(
   data = data, 
   cat_a = "CellType", 
@@ -153,7 +155,7 @@ p = dice_plot(
 
 print(p)
 # simply save the plot using the ggplot functions
-# ggsave("./diceplot_example.png",p)
+# ggsave("./diceplot_example.png",p,width = 8, height = 9)
 ```
 Explanation:
 
