@@ -1,0 +1,16 @@
+## R package reference generated from DESCRIPTION metadata
+citHeader("To cite Diceplot in publications, please use:")
+
+citEntry(
+  entry = "Article",
+  title = "Diceplot: A package for high dimensional categorical data visualization",
+  author = personList(
+    person("Matthias", "Flotho"),
+    person("Philipp", "Flotho"),
+    person("Andreas", "Keller")
+  ),
+  year = "2024",
+  journal = "arXiv preprint",
+  url = "https://arxiv.org/abs/2410.23897",
+  note = "arXiv preprint 2410.23897, primaryClass: q-bio.QM"
+)
