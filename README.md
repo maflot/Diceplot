@@ -172,7 +172,6 @@ This code example provides a clear definition of the data and demonstrates how t
 ## Use the dice plots in python
 for using dice plots in python please refer to [pyDicePlot](https://github.com/maflot/pyDicePlot/tree/main)
 
-
 ## Documentation
 
 For full documentation and additional examples, please refer to the [documentation](https://dice-and-domino-plot.readthedocs.io/en/latest/index.html#)
@@ -193,7 +192,22 @@ We welcome contributions from the community! If you'd like to contribute:
 
 If you have any questions, suggestions, or issues, please open an issue on GitHub.
 
+## Citation
 
+If you use this code or the R and python packages for your own work, please cite diceplot as:
+  
+> M. Flotho, P. Flotho, A. Keller, “Diceplot: A package for high dimensional categorical data visualization,” arxiv, 2024. [doi:10.48550/arXiv.2410.23897](https://doi.org/10.48550/arXiv.2410.23897)
+
+BibTeX entry
+```
+@article{flotea2024,
+    author = {Flotho, M. and Flotho, P. and Keller, A.},
+    title = {Diceplot: A package for high dimensional categorical data visualization},
+    year = {2024},
+    journal = {arXiv preprint},
+    doi = {https://doi.org/10.48550/arXiv.2410.23897}
+}
+```
 
 # Change-log v0.1.3
 None yet
