@@ -26,7 +26,7 @@ utils::globalVariables(c(
 #' @param base_width_per_cat_a Used for dynamically scaling the width. Default is 0.5.
 #' @param base_height_per_cat_b Used for dynamically scaling the height. Default is 0.3.
 #' @param reverse_ordering Should the cluster ordering be reversed?. Default is FALSE.
-#' @param reverse_ordering Do you want to pass an explicit order?. Default is NULL.
+#' @param cat_b_order Do you want to pass an explicit order?. Default is NULL.
 #'
 #' @return A ggplot object representing the dice plot.
 #' @importFrom ggplot2 ggplot aes geom_rect geom_point scale_color_manual scale_fill_manual scale_x_discrete scale_y_discrete theme element_text element_blank unit labs coord_fixed ggtitle guides ggsave theme_minimal
@@ -58,7 +58,7 @@ dice_plot <- function(data,
                       ) {
   
   num_vars <- length(unique(data[[cat_c]]))
-  
+  cat_c_levels = unique(data[[cat_c]])
   if (is.null(cat_c_colors)) {
     available_colors <- RColorBrewer::brewer.pal.info
     suitable_palettes <- rownames(available_colors[available_colors$category == "qual" & available_colors$maxcolors >= num_vars, ])
@@ -87,12 +87,9 @@ dice_plot <- function(data,
     }
     if (is.null(names(cat_c_colors))) {
       names(cat_c_colors) <- cat_c_levels
-    } else {
-      if (!all(cat_c_levels %in% names(cat_c_colors))) {
-        stop("The names of cat_c_colors do not match the categories in cat_c.")
-      }
-      cat_c_colors <- cat_c_colors[cat_c_levels]
     }
+    cat_c_colors <- cat_c_colors[cat_c_levels]
+  
   }
   
   if (!is.null(group)) {

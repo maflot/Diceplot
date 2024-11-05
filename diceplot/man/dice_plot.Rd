@@ -21,7 +21,8 @@ dice_plot(
   legend_height = 0.5,
   base_width_per_cat_a = 0.5,
   base_height_per_cat_b = 0.3,
-  reverse_ordering = FALSE
+  reverse_ordering = FALSE,
+  cat_b_order = NULL
 )
 }
 \arguments{
@@ -39,9 +40,9 @@ dice_plot(
 
 \item{title}{An optional string for the plot title. Defaults to \code{NULL}.}
 
-\item{cat_c_colors}{A named vector of colors for \code{cat_c} categories. Defaults to \code{NULL} (automatically generated).}
+\item{cat_c_colors}{A named vector of colors for \code{cat_c} categories or a string to chose a colorbrewer palette. Defaults to \code{NULL} using the first suitable colorbrewer palette to use.}
 
-\item{group_colors}{A named vector of colors for the group variable. Defaults to \code{NULL} (automatically generated).}
+\item{group_colors}{A named vector of colors for the group variableor a string to chose a colorbrewer palette. Defaults to \code{NULL} using the first suitable colorbrewer palette to use.}
 
 \item{custom_theme}{A ggplot2 theme for customizing the plot's appearance. Defaults to \code{theme_minimal()}.}
 
@@ -58,6 +59,8 @@ dice_plot(
 \item{base_height_per_cat_b}{Used for dynamically scaling the height. Default is 0.3.}
 
 \item{reverse_ordering}{Should the cluster ordering be reversed?. Default is FALSE.}
+
+\item{cat_b_order}{Do you want to pass an explicit order?. Default is NULL.}
 }
 \value{
 A ggplot object representing the dice plot.
