@@ -211,5 +211,7 @@ BibTeX entry
 
 # Change-log v0.1.3
 - add citation 
-None yet
+- ```cat_c_colors``` allow to pass a colorbrewer palette name for chosing the color palette as an additional option
+- ```group_colors``` allow to pass a colorbrewer palette name for chosing the color palette as an additional option
+- ```cat_b_order``` allow to pass an explicit row order
 

@@ -16,8 +16,8 @@ utils::globalVariables(c(
 #' @param group A string representing the column name in `data` for the grouping variable.
 #' @param group_alpha A numeric value for the transparency level of the group rectangles. Default is `0.5`.
 #' @param title An optional string for the plot title. Defaults to `NULL`.
-#' @param cat_c_colors A named vector of colors for `cat_c` categories. Defaults to `NULL` (automatically generated).
-#' @param group_colors A named vector of colors for the group variable. Defaults to `NULL` (automatically generated).
+#' @param cat_c_colors A named vector of colors for `cat_c` categories or a string to chose a colorbrewer palette. Defaults to `NULL` using the first suitable colorbrewer palette to use.
+#' @param group_colors A named vector of colors for the group variableor a string to chose a colorbrewer palette. Defaults to `NULL` using the first suitable colorbrewer palette to use.
 #' @param custom_theme A ggplot2 theme for customizing the plot's appearance. Defaults to `theme_minimal()`.
 #' @param max_dot_size Maximal dot size for the plot to scale the dot sizes.
 #' @param min_dot_size Minimal dot size for the plot to scale the dot sizes.
@@ -26,6 +26,7 @@ utils::globalVariables(c(
 #' @param base_width_per_cat_a Used for dynamically scaling the width. Default is 0.5.
 #' @param base_height_per_cat_b Used for dynamically scaling the height. Default is 0.3.
 #' @param reverse_ordering Should the cluster ordering be reversed?. Default is FALSE.
+#' @param reverse_ordering Do you want to pass an explicit order?. Default is NULL.
 #'
 #' @return A ggplot object representing the dice plot.
 #' @importFrom ggplot2 ggplot aes geom_rect geom_point scale_color_manual scale_fill_manual scale_x_discrete scale_y_discrete theme element_text element_blank unit labs coord_fixed ggtitle guides ggsave theme_minimal
@@ -52,7 +53,8 @@ dice_plot <- function(data,
                       legend_height = 0.5,
                       base_width_per_cat_a = 0.5,  
                       base_height_per_cat_b = 0.3,
-                      reverse_ordering = FALSE
+                      reverse_ordering = FALSE,
+                      cat_b_order = NULL
                       ) {
   
   num_vars <- length(unique(data[[cat_c]]))
@@ -63,10 +65,34 @@ dice_plot <- function(data,
     if (length(suitable_palettes) == 0) {
       stop("No suitable ColorBrewer palette found for the number of categories in cat_c.")
     }
-    palette_name <- suitable_palettes[1]  # Select the first suitable palette
+    palette_name <- suitable_palettes[1]  
     default_cat_c_colors <- RColorBrewer::brewer.pal(n = num_vars, name = palette_name)
     names(default_cat_c_colors) <- unique(data[[cat_c]])
     cat_c_colors <- default_cat_c_colors
+  } else if (is.character(cat_c_colors) && length(cat_c_colors) == 1) {
+    if (!cat_c_colors %in% rownames(RColorBrewer::brewer.pal.info)) {
+      stop(paste("The specified palette '", cat_c_colors, "' is not a valid ColorBrewer palette.", sep = ""))
+    }
+    max_colors_in_palette <- RColorBrewer::brewer.pal.info[cat_c_colors, "maxcolors"]
+    if (num_vars > max_colors_in_palette) {
+      stop(paste("The specified palette '", cat_c_colors, "' does not have enough colors (needs ", num_vars, ", but only has ", max_colors_in_palette, ").", sep = ""))
+    }
+    palette_colors <- RColorBrewer::brewer.pal(n = num_vars, name = cat_c_colors)
+    names(palette_colors) <- cat_c_levels
+    cat_c_colors <- palette_colors
+  } else {
+    # cat_c_colors is assumed to be an explicit color palette
+    if (length(cat_c_colors) != num_vars) {
+      stop("The length of cat_c_colors does not match the number of categories in cat_c.")
+    }
+    if (is.null(names(cat_c_colors))) {
+      names(cat_c_colors) <- cat_c_levels
+    } else {
+      if (!all(cat_c_levels %in% names(cat_c_colors))) {
+        stop("The names of cat_c_colors do not match the categories in cat_c.")
+      }
+      cat_c_colors <- cat_c_colors[cat_c_levels]
+    }
   }
   
   if (!is.null(group)) {
@@ -76,16 +102,43 @@ dice_plot <- function(data,
       if (num_groups > 9) {
         stop("The number of groups exceeds the maximum colors available in ColorBrewer palettes.")
       }
-      # Choose a suitable palette
       available_colors <- RColorBrewer::brewer.pal.info
-      suitable_palettes <- rownames(available_colors[available_colors$category == "qual" & available_colors$maxcolors >= num_groups, ])
+      suitable_palettes <- rownames(available_colors[
+        available_colors$category == "qual" & available_colors$maxcolors >= num_groups, 
+      ])
       if (length(suitable_palettes) == 0) {
         stop("No suitable ColorBrewer palette found for the number of groups.")
       }
-      palette_name <- suitable_palettes[2]  # Select a different palette to avoid color overlap
-      group_colors_palette <- brewer.pal(n = num_groups, name = palette_name)
+      palette_name <- suitable_palettes[2]  # Select a palette (e.g., the second one)
+      group_colors_palette <- RColorBrewer::brewer.pal(n = num_groups, name = palette_name)
       names(group_colors_palette) <- unique_groups
       group_colors <- group_colors_palette
+    } else if (is.character(group_colors) && length(group_colors) == 1) {
+      if (!group_colors %in% rownames(RColorBrewer::brewer.pal.info)) {
+        stop(paste("The specified palette '", group_colors, "' is not a valid ColorBrewer palette.", sep = ""))
+      }
+      max_colors_in_palette <- RColorBrewer::brewer.pal.info[group_colors, "maxcolors"]
+      if (num_groups > max_colors_in_palette) {
+        stop(paste("The specified palette '", group_colors, "' does not have enough colors (needs ", num_groups, ", but only has ", max_colors_in_palette, ").", sep = ""))
+      }
+      group_colors_palette <- RColorBrewer::brewer.pal(n = num_groups, name = group_colors)
+      unique_groups <- unique(data[[group]])
+      names(group_colors_palette) <- unique_groups
+      group_colors <- group_colors_palette
+    } else {
+      unique_groups <- unique(data[[group]])
+      num_groups <- length(unique_groups)
+      if (length(group_colors) != num_groups) {
+        stop("The length of group_colors does not match the number of groups.")
+      }
+      if (is.null(names(group_colors))) {
+        names(group_colors) <- unique_groups
+      } else {
+        if (!all(unique_groups %in% names(group_colors))) {
+          stop("The names of group_colors do not match the groups in the data.")
+        }
+        group_colors <- group_colors[unique_groups]
+      }
     }
     
     # Ensure group is a factor with levels matching group_colors
@@ -113,8 +166,10 @@ dice_plot <- function(data,
   # Define variable positions dynamically
   var_positions <- create_var_positions(cat_c_colors, num_vars)
   cat_a_order <- perform_clustering(data, cat_a, cat_b, cat_c)
-  if (!is.null(group)) {
+  if (!is.null(group) & is.null(cat_b_order)) {
     cat_b_order <- order_cat_b(data, group, cat_b, group_colors, reverse_ordering)
+  } else if (!is.null(cat_b_order)){
+    cat_b_order = cat_b_order
   } else {
     cat_b_order <- levels(data[[cat_b]])
   }

@@ -376,9 +376,10 @@ create_custom_legends <- function(data, cat_c, group, cat_c_colors, group_colors
 }
 
 
-get_dice_plot_example_data = function(n){
-#TODO  
+save_diceplot = function(){
+  
 }
+
 
 
 
