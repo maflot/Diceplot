@@ -165,14 +165,26 @@ dice_plot <- function(data,
   
   # Define variable positions dynamically
   var_positions <- create_var_positions(cat_c_colors, num_vars)
-  cat_a_order <- perform_clustering(data, cat_a, cat_b, cat_c)
-  if (!is.null(group) & is.null(cat_b_order)) {
-    cat_b_order <- order_cat_b(data, group, cat_b, group_colors, reverse_ordering)
-  } else if (!is.null(cat_b_order)){
-    cat_b_order = cat_b_order
+  if(order_by_factor){
+    cat_a_order <- levels(data[[cat_a]])
+    if (!is.null(group) & is.null(cat_b_order)) {
+      cat_b_order <- order_cat_b(data, group, cat_b, group_colors, reverse_ordering)
+    } else if (!is.null(cat_b_order)){
+      cat_b_order <- cat_b_order
+    } else {
+      cat_b_order <- levels(data[[cat_b]])
+    }
   } else {
-    cat_b_order <- levels(data[[cat_b]])
+    cat_a_order <- perform_clustering(data, cat_a, cat_b, cat_c)
+    if (!is.null(group) & is.null(cat_b_order)) {
+      cat_b_order <- order_cat_b(data, group, cat_b, group_colors, reverse_ordering)
+    } else if (!is.null(cat_b_order)){
+      cat_b_order <- cat_b_order
+    } else {
+      cat_b_order <- levels(data[[cat_b]])
+    }
   }
+  
   
   plot_data <- prepare_plot_data(data, cat_a, cat_b, cat_c, group, var_positions, cat_a_order, cat_b_order)
   if (!is.null(group)) {
