@@ -22,7 +22,8 @@ dice_plot(
   base_width_per_cat_a = 0.5,
   base_height_per_cat_b = 0.3,
   reverse_ordering = FALSE,
-  cat_b_order = NULL
+  cat_b_order = NULL,
+  order_by_factor = FALSE
 )
 }
 \arguments{
@@ -61,6 +62,8 @@ dice_plot(
 \item{reverse_ordering}{Should the cluster ordering be reversed?. Default is FALSE.}
 
 \item{cat_b_order}{Do you want to pass an explicit order?. Default is NULL.}
+
+\item{order_by_factor}{Do you want to pass an explicit order?. Default is NULL.}
 }
 \value{
 A ggplot object representing the dice plot.

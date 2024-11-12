@@ -1,3 +1,10 @@
+
+# Change-log v0.1.3
+- add citation 
+- ```cat_c_colors``` allow to pass a colorbrewer palette name for chosing the color palette as an additional option
+- ```group_colors``` allow to pass a colorbrewer palette name for chosing the color palette as an additional option
+- ```cat_b_order``` allow to pass an explicit row order
+
 # Change-log v0.1.2
   - rename files from dice_plot/ domino_plot to diceplot/dominoplot
   - adapted dice_plot arguments:
@@ -11,3 +18,5 @@
     - ```legend_width``` and ```legend_height``` as additional arguments to modify your plots legend.
     - ```base_width_per_cat_a``` and ```base_height_per_cat_b``` as additional arguments to modify your plots legend.
     - ```reverse_ordering``` reverse the clustering order if wanted
+
+

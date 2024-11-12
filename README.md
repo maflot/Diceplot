@@ -209,9 +209,6 @@ BibTeX entry
 }
 ```
 
-# Change-log v0.1.3
-- add citation 
-- ```cat_c_colors``` allow to pass a colorbrewer palette name for chosing the color palette as an additional option
-- ```group_colors``` allow to pass a colorbrewer palette name for chosing the color palette as an additional option
-- ```cat_b_order``` allow to pass an explicit row order
-
+# Change-log v0.1.4
+- handling factors in diceplot
+- ```order_by_factor```allow to force factor ordering 

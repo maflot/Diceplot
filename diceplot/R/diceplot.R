@@ -27,6 +27,7 @@ utils::globalVariables(c(
 #' @param base_height_per_cat_b Used for dynamically scaling the height. Default is 0.3.
 #' @param reverse_ordering Should the cluster ordering be reversed?. Default is FALSE.
 #' @param cat_b_order Do you want to pass an explicit order?. Default is NULL.
+#' @param order_by_factor Do you want to pass an explicit order?. Default is NULL.
 #'
 #' @return A ggplot object representing the dice plot.
 #' @importFrom ggplot2 ggplot aes geom_rect geom_point scale_color_manual scale_fill_manual scale_x_discrete scale_y_discrete theme element_text element_blank unit labs coord_fixed ggtitle guides ggsave theme_minimal
@@ -54,7 +55,8 @@ dice_plot <- function(data,
                       base_width_per_cat_a = 0.5,  
                       base_height_per_cat_b = 0.3,
                       reverse_ordering = FALSE,
-                      cat_b_order = NULL
+                      cat_b_order = NULL,
+                      order_by_factor = FALSE
                       ) {
   
   num_vars <- length(unique(data[[cat_c]]))
@@ -143,10 +145,11 @@ dice_plot <- function(data,
   }
   
   # Ensure consistent ordering of factors
-  data[[cat_a]] <- factor(data[[cat_a]], levels = unique(data[[cat_a]]))
-  data[[cat_b]] <- factor(data[[cat_b]], levels = unique(data[[cat_b]]))
-  data[[cat_c]] <- factor(data[[cat_c]], levels = names(cat_c_colors))
-  
+  if(!order_by_factor){
+    data[[cat_a]] <- factor(data[[cat_a]], levels = unique(data[[cat_a]]))
+    data[[cat_b]] <- factor(data[[cat_b]], levels = unique(data[[cat_b]]))
+    data[[cat_c]] <- factor(data[[cat_c]], levels = names(cat_c_colors))
+  }
   if (!is.null(group)) {
     # Check for unique group per cat_b
     group_check <- data %>%
