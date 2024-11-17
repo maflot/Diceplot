@@ -211,4 +211,7 @@ BibTeX entry
 
 # Change-log v0.1.4
 - handling factors in diceplot
-- ```order_by_factor```allow to force factor ordering 
+- ```cluster_by_row``` 
+- ```cluster_by_column``` 
+
+
