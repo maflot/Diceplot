@@ -147,18 +147,3 @@ create_and_plot_dice(
   max_dot_size = 3
 )
 
-
-
-# Use the dice_plot function
-dice_plot(data = data, 
-          cat_a = "CellType", 
-          cat_b = "Pathway", 
-          cat_c = "PathologyVariable", 
-          group = "Group",
-          group_alpha = 0.6,
-          title = title,
-          cat_c_colors = cat_c_colors, 
-          custom_theme = theme_minimal(),
-          min_dot_size = 1,
-          max_dot_size = 3
-)
