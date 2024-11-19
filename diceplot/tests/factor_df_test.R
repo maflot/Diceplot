@@ -51,7 +51,8 @@ p <- dice_plot(
   custom_theme = theme_minimal(),
   min_dot_size = 2,
   max_dot_size = 4,
-  order_by_factor = TRUE
+  cluster_by_column = F,
+  cluster_by_row = FALSE,
 )
 
 print(p)

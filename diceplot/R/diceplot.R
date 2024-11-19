@@ -188,7 +188,7 @@ dice_plot <- function(data,
   if(cluster_by_column){
     cat_a_order <- perform_clustering(data, cat_a, cat_b, cat_c)
   } else {
-    cat_a_order <- levels(data[[cat_b]])
+    cat_a_order <- levels(data[[cat_a]])
   }
   
   plot_data <- prepare_plot_data(data, cat_a, cat_b, cat_c, group, var_positions, cat_a_order, cat_b_order)
