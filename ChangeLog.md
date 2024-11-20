@@ -1,4 +1,12 @@
 
+
+# Change-log v0.1.4
+- handling factors in diceplot
+- ```cluster_by_row``` argument defaults to TRUE, false it will use the factor levels for ordering 
+- ```cluster_by_column``` argument defaults to TRUE, false it will use the factor levels for ordering 
+- ```show_legend``` defaults to TRUE, show or omit the legend plot
+- ```cat_b_order``` argument removed, will throw an error in a future version
+
 # Change-log v0.1.3
 - add citation 
 - ```cat_c_colors``` allow to pass a colorbrewer palette name for chosing the color palette as an additional option

@@ -23,7 +23,9 @@ dice_plot(
   base_height_per_cat_b = 0.3,
   reverse_ordering = FALSE,
   cat_b_order = NULL,
-  order_by_factor = FALSE
+  cluster_by_row = TRUE,
+  cluster_by_column = TRUE,
+  show_legend = TRUE
 )
 }
 \arguments{
@@ -63,7 +65,11 @@ dice_plot(
 
 \item{cat_b_order}{Do you want to pass an explicit order?. Default is NULL.}
 
-\item{order_by_factor}{Do you want to pass an explicit order?. Default is NULL.}
+\item{cluster_by_row}{Cluster rows, defaults to TRUE}
+
+\item{cluster_by_column}{Cluster columns, defaults to TRUE}
+
+\item{show_legend}{Do you want to show the legend? Default is TRUE}
 }
 \value{
 A ggplot object representing the dice plot.

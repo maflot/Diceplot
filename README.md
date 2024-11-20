@@ -211,7 +211,9 @@ BibTeX entry
 
 # Change-log v0.1.4
 - handling factors in diceplot
-- ```cluster_by_row``` 
-- ```cluster_by_column``` 
+- ```cluster_by_row``` argument defaults to TRUE, false it will use the factor levels for ordering 
+- ```cluster_by_column``` argument defaults to TRUE, false it will use the factor levels for ordering 
+- ```show_legend``` defaults to TRUE, show or omit the legend plot
+- ```cat_b_order``` argument removed, will throw an error in a future version
 
 

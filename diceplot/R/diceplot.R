@@ -29,6 +29,7 @@ utils::globalVariables(c(
 #' @param cat_b_order Do you want to pass an explicit order?. Default is NULL.
 #' @param cluster_by_row Cluster rows, defaults to TRUE
 #' @param cluster_by_column Cluster columns, defaults to TRUE
+#' @param show_legend Do you want to show the legend? Default is TRUE
 #'
 #' @return A ggplot object representing the dice plot.
 #' @importFrom ggplot2 ggplot aes geom_rect geom_point scale_color_manual scale_fill_manual scale_x_discrete scale_y_discrete theme element_text element_blank unit labs coord_fixed ggtitle guides ggsave theme_minimal
@@ -58,7 +59,8 @@ dice_plot <- function(data,
                       reverse_ordering = FALSE,
                       cat_b_order = NULL, # how to add an deprec
                       cluster_by_row = TRUE,
-                      cluster_by_column = TRUE
+                      cluster_by_column = TRUE,
+                      show_legend = TRUE
                       ) {
   
   if (!is.null(cat_b_order)) {
@@ -239,14 +241,20 @@ dice_plot <- function(data,
     ggtitle(title)
   
   # Add guides based on whether group is provided
-  if (!is.null(group)) {
+  if (!is.null(group) && show_legend) {
     p <- p + guides(fill = "none")
   }
   
-  # Create custom legends only if group is provided
-  if (!is.null(group)) {
-    combined_legend_plot <- create_custom_legends(data, cat_c, group, cat_c_colors, group_colors, var_positions, num_vars, dot_size)
-
+  # Remove legends if show_legend is FALSE
+  if (!show_legend) {
+    p <- p + theme(legend.position = "none")
+  }
+  
+  # Create custom legends only if group is provided and show legend is true
+  if (!is.null(group) && show_legend) {
+    combined_legend_plot <- create_custom_legends(
+      data, cat_c, group, cat_c_colors, group_colors, var_positions, num_vars, dot_size
+    )
     
     # Combine the main plot and legends without 'preserve = "aspect"'
     combined_plot <- ggdraw() +
@@ -263,17 +271,10 @@ dice_plot <- function(data,
         y = (1 - legend_height) / 2,  # Center vertically
         width = legend_width, 
         height = legend_height
-        # Removed preserve = "aspect"
       )
   } else {
     combined_plot <- p
   }
-  
-  # Dynamic Plot Sizing and Saving
-  n_cat_a <- length(unique(plot_data[[cat_a]]))
-  n_cat_b <- length(unique(plot_data[[cat_b]]))
-  total_width <- max(n_cat_a * base_width_per_cat_a + ifelse(!is.null(group), 3, 6), 4)
-  total_height <- max(n_cat_b * base_height_per_cat_b + 3, 4)  
   
   return(combined_plot)
 }
