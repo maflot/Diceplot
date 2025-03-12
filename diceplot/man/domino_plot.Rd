@@ -12,13 +12,13 @@ domino_plot(
   max_dot_size = 5,
   spacing_factor = 3,
   var_id = "var",
-  feature_col = "gene",
-  celltype_col = "Celltype",
-  contrast_col = "Contrast",
+  x = "gene",
+  y = "Celltype",
+  contrast = "Contrast",
   contrast_levels = c("Clinical", "Pathological"),
   contrast_labels = c("Clinical", "Pathological"),
-  logfc_col = "avg_log2FC",
-  pval_col = "p_val_adj",
+  log_fc = "avg_log2FC",
+  p_val = "p_val_adj",
   logfc_limits = c(-1.5, 1.5),
   logfc_colors = c(low = "blue", mid = "white", high = "red"),
   color_scale_name = "Log2 Fold Change",
@@ -27,7 +27,13 @@ domino_plot(
   aspect_ratio = NULL,
   base_width = 5,
   base_height = 4,
-  output_file = NULL
+  output_file = NULL,
+  cluster_method = "complete",
+  feature_col = NULL,
+  celltype_col = NULL,
+  contrast_col = NULL,
+  logfc_col = NULL,
+  pval_col = NULL
 )
 }
 \arguments{
@@ -45,19 +51,19 @@ domino_plot(
 
 \item{var_id}{A string representing the column name in \code{data} for the variable identifier. Default is \code{"var"}.}
 
-\item{feature_col}{A string representing the column name in \code{data} for the feature variable (e.g., genes). Default is \code{"gene"}.}
+\item{x}{A string representing the column name in \code{data} for the feature variable (e.g., genes). Default is \code{"gene"}.}
 
-\item{celltype_col}{A string representing the column name in \code{data} for the cell type variable. Default is \code{"Celltype"}.}
+\item{y}{A string representing the column name in \code{data} for the cell type variable. Default is \code{"Celltype"}.}
 
-\item{contrast_col}{A string representing the column name in \code{data} for the contrast variable. Default is \code{"Contrast"}.}
+\item{contrast}{A string representing the column name in \code{data} for the contrast variable. Default is \code{"Contrast"}.}
 
 \item{contrast_levels}{A character vector specifying the levels of the contrast variable. Default is \code{c("Clinical", "Pathological")}.}
 
 \item{contrast_labels}{A character vector specifying the labels for the contrasts in the plot. Default is \code{c("Clinical", "Pathological")}.}
 
-\item{logfc_col}{A string representing the column name in \code{data} for the log fold change values. Default is \code{"avg_log2FC"}.}
+\item{log_fc}{A string representing the column name in \code{data} for the log fold change values. Default is \code{"avg_log2FC"}.}
 
-\item{pval_col}{A string representing the column name in \code{data} for the adjusted p-values. Default is \code{"p_val_adj"}.}
+\item{p_val}{A string representing the column name in \code{data} for the adjusted p-values. Default is \code{"p_val_adj"}.}
 
 \item{logfc_limits}{A numeric vector of length 2 specifying the limits for the log fold change color scale. Default is \code{c(-1.5, 1.5)}.}
 
@@ -76,6 +82,18 @@ domino_plot(
 \item{base_height}{A numeric value specifying the base height for saving the plot. Default is \code{4}.}
 
 \item{output_file}{An optional string specifying the path to save the plot. If \code{NULL}, the plot is not saved. Default is \code{NULL}.}
+
+\item{cluster_method}{The clustering method to use. Default is \code{"complete"}.}
+
+\item{feature_col}{Deprecated. Use \code{x} instead.}
+
+\item{celltype_col}{Deprecated. Use \code{y} instead.}
+
+\item{contrast_col}{Deprecated. Use \code{contrast} instead.}
+
+\item{logfc_col}{Deprecated. Use \code{log_fc} instead.}
+
+\item{pval_col}{Deprecated. Use \code{p_val} instead.}
 }
 \value{
 A ggplot object representing the domino plot.
