@@ -375,7 +375,245 @@ create_custom_legends <- function(data, cat_c, group, cat_c_colors, group_colors
   return(combined_legend_plot)
 }
 
-
+#' @title Create Custom Domino Legends
+#' @description
+#' Creates custom legend plots for domino plot, including variable positions within each domino, contrast layout,
+#' and explanations for log fold change and p-values.
+#' @param contrast_levels A character vector with the two contrast levels.
+#' @param var_positions A data frame containing variable positions data.
+#' @param var_id A string specifying the variable identifier column name.
+#' @param contrast A string specifying the contrast column name.
+#' @param logfc_colors A named vector of colors for log fold change.
+#' @param logfc_limits A numeric vector of length 2 specifying the limits for the log fold change color scale.
+#' @param color_scale_name A string specifying the name of the color scale in the legend.
+#' @param size_scale_name A string specifying the name of the size scale in the legend.
+#' @param min_dot_size A numeric value indicating the minimum dot size in the plot.
+#' @param max_dot_size A numeric value indicating the maximum dot size in the plot.
+#' @return A combined ggplot object of the custom legends.
+#' @importFrom ggplot2 ggplot aes geom_point geom_rect scale_color_gradient2 scale_size_continuous theme_void theme element_text element_blank margin coord_fixed geom_text element_rect ggtitle
+#' @importFrom cowplot plot_grid
+#' @importFrom utils globalVariables
+#' @export
+create_custom_domino_legends <- function(
+    contrast_levels,
+    var_positions,
+    var_id,
+    contrast,
+    logfc_colors,
+    logfc_limits,
+    color_scale_name,
+    size_scale_name,
+    min_dot_size,
+    max_dot_size
+) {
+  # Create a legend showing variable positions inside the domino boxes
+  # Split var_positions by contrast
+  var_positions_left <- var_positions[var_positions[[contrast]] == contrast_levels[1],]
+  var_positions_right <- var_positions[var_positions[[contrast]] == contrast_levels[2],]
+  
+  # Create a more comprehensive visualization of the domino layout
+  domino_data <- data.frame(
+    contrast = c("Left", "Right"),
+    contrast_label = contrast_levels,
+    x = c(1, 2),
+    y = c(1, 1)
+  )
+  
+  # Create the var positions legend
+  var_legend_data <- data.frame()
+  
+  # For each var in the left contrast
+  for (i in 1:nrow(var_positions_left)) {
+    var_entry <- var_positions_left[i,]
+    var_legend_data <- rbind(var_legend_data, data.frame(
+      var = var_entry[[var_id]],
+      x = 1 + var_entry$x_offset - 1, # Adjust so it's centered around x=1
+      y = 1 + var_entry$y_offset,
+      position = "Left",
+      text_x_offset = -0.6, # Text will appear to the left
+      hjust_val = 1         # Right-aligned text
+    ))
+  }
+  
+  # For each var in the right contrast
+  for (i in 1:nrow(var_positions_right)) {
+    var_entry <- var_positions_right[i,]
+    var_legend_data <- rbind(var_legend_data, data.frame(
+      var = var_entry[[var_id]],
+      x = 2 + var_entry$x_offset - 2, # Adjust so it's centered around x=2
+      y = 1 + var_entry$y_offset,
+      position = "Right",
+      text_x_offset = 0.6,  # Text will appear to the right
+      hjust_val = 0         # Left-aligned text
+    ))
+  }
+  
+  # Create the position and variable layout legend plot
+  vars_legend_plot <- ggplot() +
+    # Draw the domino boxes
+    geom_rect(
+      data = domino_data,
+      aes(
+        xmin = x - 0.4,
+        xmax = x + 0.4,
+        ymin = y - 0.4,
+        ymax = y + 0.4
+      ),
+      fill = "white", color = "darkgrey", alpha = 0.5
+    ) +
+    # Add dots showing variable positions within each box
+    geom_point(
+      data = var_legend_data,
+      aes(x = x, y = y),
+      size = 3,
+      color = "darkblue"
+    ) +
+    # Add variable labels with position-dependent placement
+    geom_text(
+      data = var_legend_data,
+      aes(x = x + text_x_offset, y = y, label = var, hjust = hjust_val),
+      size = 3
+    ) +
+    # Add contrast labels inside boxes
+    geom_text(
+      data = domino_data,
+      aes(x = x, y = y - 0.2, label = contrast_label),
+      size = 3,
+      fontface = "bold",
+      color = "black"
+    ) +
+    # Add position labels above boxes
+    geom_text(
+      data = domino_data,
+      aes(x = x, y = y + 0.7, label = contrast),
+      size = 3,
+      fontface = "bold",
+      color = "black"
+    ) +
+    theme_void() +
+    theme(
+      plot.margin = margin(10, 20, 10, 20),  # Increased margins
+      plot.background = element_rect(fill = "white", color = NA)
+    ) +
+    coord_fixed(
+      ratio = 1,
+      xlim = c(-0.5, 3.5),  # Wider limits to accommodate the text
+      ylim = c(0.2, 2.0),
+      expand = FALSE,
+      clip = "off"  # Allow text outside the plot area
+    ) +
+    ggtitle("Variable Positions")
+  
+  # Create data for log fold change legend
+  logfc_range <- seq(from = logfc_limits[1], to = logfc_limits[2], length.out = 5)
+  logfc_legend_data <- data.frame(
+    logfc = logfc_range,
+    x = rep(1, length(logfc_range)),
+    y = seq(length(logfc_range), 1)
+  )
+  
+  # Create log fold change legend plot
+  logfc_legend_plot <- ggplot() +
+    geom_point(
+      data = logfc_legend_data,
+      aes(x = x, y = y, color = logfc),
+      size = 3
+    ) +
+    geom_point(
+      data = logfc_legend_data,
+      aes(x = x, y = y),
+      size = 3.5,
+      shape = 1,
+      color = "black"
+    ) +
+    scale_color_gradient2(
+      name = color_scale_name,
+      low = logfc_colors["low"],
+      mid = logfc_colors["mid"],
+      high = logfc_colors["high"],
+      limits = logfc_limits
+    ) +
+    theme_void() +
+    theme(
+      legend.position = "none",
+      plot.margin = margin(5, 50, 5, 5),
+      plot.background = element_rect(fill = "white", color = NA)
+    ) +
+    coord_fixed(
+      ratio = 1,
+      xlim = c(0.5, 1.5),
+      ylim = c(0.5, length(logfc_range) + 0.5),
+      expand = FALSE,
+      clip = "off"
+    ) +
+    geom_text(
+      data = logfc_legend_data,
+      aes(x = x + 0.4, y = y, label = sprintf("%.1f", logfc)),
+      size = 3,
+      color = "black",
+      hjust = 0
+    ) +
+    ggtitle(color_scale_name)
+  
+  # Create data for p-value legend
+  p_val_range <- seq(from = 0, to = 5, length.out = 5)  # -log10(p) from 0 to 5
+  p_val_legend_data <- data.frame(
+    log_p_val = p_val_range,
+    x = rep(1, length(p_val_range)),
+    y = seq(length(p_val_range), 1)
+  )
+  
+  # Create p-value legend plot
+  p_val_legend_plot <- ggplot() +
+    geom_point(
+      data = p_val_legend_data,
+      aes(x = x, y = y, size = log_p_val),
+      color = "black"
+    ) +
+    geom_point(
+      data = p_val_legend_data,
+      aes(x = x, y = y, size = log_p_val),
+      shape = 1,
+      color = "black"
+    ) +
+    scale_size_continuous(
+      name = size_scale_name,
+      range = c(min_dot_size, max_dot_size)
+    ) +
+    theme_void() +
+    theme(
+      legend.position = "none",
+      plot.margin = margin(5, 50, 5, 5),
+      plot.background = element_rect(fill = "white", color = NA)
+    ) +
+    coord_fixed(
+      ratio = 1,
+      xlim = c(0.5, 1.5),
+      ylim = c(0.5, length(p_val_range) + 0.5),
+      expand = FALSE,
+      clip = "off"
+    ) +
+    geom_text(
+      data = p_val_legend_data,
+      aes(x = x + 0.4, y = y, label = sprintf("%.1f", log_p_val)),
+      size = 3,
+      color = "black",
+      hjust = 0
+    ) +
+    ggtitle(size_scale_name)
+  
+  # Combine all legend plots
+  combined_legend_plot <- cowplot::plot_grid(
+    vars_legend_plot,
+    logfc_legend_plot,
+    p_val_legend_plot,
+    ncol = 1,
+    align = 'v',
+    rel_heights = c(2, 1, 1)  # Give more height to the variable positions legend
+  )
+  
+  return(combined_legend_plot)
+}
 save_diceplot = function(){
   
 }

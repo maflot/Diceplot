@@ -242,30 +242,9 @@ BibTeX entry
 }
 ```
 
-# Change-log v0.1.5
-
+# Change-log v0.1.6
+- update the examples to real world data
 ## domino_plot function
-- Adopted cleaner naming conventions for parameters:
-  - `feature_col` → `x`
-  - `celltype_col` → `y`
-  - `contrast_col` → `contrast`
-  - `logfc_col` → `log_fc`
-  - `pval_col` → `p_val`
-- Added deprecation warnings for old parameter names that will be removed in a future version >v1.5
-- Updated function documentation to reflect new parameter names
+- add proper legend to the plot, remove intermediate plot
 
 ## dice_plot function
-- Adopted cleaner naming conventions for parameters:
-  - `cat_a` → `x`
-  - `cat_b` → `y`
-  - `cat_c` → `z`
-  - `cat_c_colors` → `z_colors`
-  - `base_width_per_cat_a` → `base_width_per_x`
-  - `base_height_per_cat_b` → `base_height_per_y`
-- Added deprecation warnings for old parameter names that will be removed in a future version >v1.5
-- Updated function documentation to reflect new parameter names
-- Improved handling of factors in both functions
-- `cluster_by_row` argument defaults to TRUE, set to FALSE to use factor levels for ordering 
-- `cluster_by_column` argument defaults to TRUE, set to FALSE to use factor levels for ordering 
-- `show_legend` defaults to TRUE, controls whether to show or omit the legend plot
-- `cat_b_order` argument removed, will throw an error in a future version

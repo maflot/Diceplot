@@ -2,7 +2,6 @@
 library(dplyr)
 library(tidyr)
 library(ggplot2)
-library(diceplot)
 
 # Define data
 cell_types <- c("TypeA", "TypeB", "TypeC")

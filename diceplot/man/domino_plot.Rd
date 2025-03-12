@@ -15,8 +15,6 @@ domino_plot(
   x = "gene",
   y = "Celltype",
   contrast = "Contrast",
-  contrast_levels = c("Clinical", "Pathological"),
-  contrast_labels = c("Clinical", "Pathological"),
   log_fc = "avg_log2FC",
   p_val = "p_val_adj",
   logfc_limits = c(-1.5, 1.5),
@@ -29,6 +27,10 @@ domino_plot(
   base_height = 4,
   output_file = NULL,
   cluster_method = "complete",
+  cluster_y_axis = TRUE,
+  reverse_y_ordering = FALSE,
+  show_legend = TRUE,
+  legend_width = 0.25,
   feature_col = NULL,
   celltype_col = NULL,
   contrast_col = NULL,
@@ -57,10 +59,6 @@ domino_plot(
 
 \item{contrast}{A string representing the column name in \code{data} for the contrast variable. Default is \code{"Contrast"}.}
 
-\item{contrast_levels}{A character vector specifying the levels of the contrast variable. Default is \code{c("Clinical", "Pathological")}.}
-
-\item{contrast_labels}{A character vector specifying the labels for the contrasts in the plot. Default is \code{c("Clinical", "Pathological")}.}
-
 \item{log_fc}{A string representing the column name in \code{data} for the log fold change values. Default is \code{"avg_log2FC"}.}
 
 \item{p_val}{A string representing the column name in \code{data} for the adjusted p-values. Default is \code{"p_val_adj"}.}
@@ -84,6 +82,10 @@ domino_plot(
 \item{output_file}{An optional string specifying the path to save the plot. If \code{NULL}, the plot is not saved. Default is \code{NULL}.}
 
 \item{cluster_method}{The clustering method to use. Default is \code{"complete"}.}
+
+\item{cluster_y_axis}{A logical value indicating whether to cluster the y-axis (cell types). Default is \code{TRUE}.}
+
+\item{reverse_y_ordering}{A logical value indicating whether to reverse the y-axis ordering after clustering. Default is \code{FALSE}.}
 
 \item{feature_col}{Deprecated. Use \code{x} instead.}
 
