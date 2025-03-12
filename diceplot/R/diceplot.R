@@ -7,29 +7,35 @@ utils::globalVariables(c(
 
 #' Dice Plot Visualization
 #'
-#' This function generates a custom plot based on three categorical variables and a group variable. It adapts to the number of unique categories in `cat_c` and allows customization of various plot aesthetics.
+#' This function generates a custom plot based on three categorical variables and a group variable. It adapts to the number of unique categories in `z` and allows customization of various plot aesthetics.
 #'
 #' @param data A data frame containing the categorical and group variables for plotting.
-#' @param cat_a A string representing the column name in `data` for the first categorical variable.
-#' @param cat_b A string representing the column name in `data` for the second categorical variable.
-#' @param cat_c A string representing the column name in `data` for the third categorical variable.
+#' @param x A string representing the column name in `data` for the first categorical variable.
+#' @param y A string representing the column name in `data` for the second categorical variable.
+#' @param z A string representing the column name in `data` for the third categorical variable.
 #' @param group A string representing the column name in `data` for the grouping variable.
 #' @param group_alpha A numeric value for the transparency level of the group rectangles. Default is `0.5`.
 #' @param title An optional string for the plot title. Defaults to `NULL`.
-#' @param cat_c_colors A named vector of colors for `cat_c` categories or a string to chose a colorbrewer palette. Defaults to `NULL` using the first suitable colorbrewer palette to use.
+#' @param z_colors A named vector of colors for `z` categories or a string to chose a colorbrewer palette. Defaults to `NULL` using the first suitable colorbrewer palette to use.
 #' @param group_colors A named vector of colors for the group variableor a string to chose a colorbrewer palette. Defaults to `NULL` using the first suitable colorbrewer palette to use.
 #' @param custom_theme A ggplot2 theme for customizing the plot's appearance. Defaults to `theme_minimal()`.
 #' @param max_dot_size Maximal dot size for the plot to scale the dot sizes.
 #' @param min_dot_size Minimal dot size for the plot to scale the dot sizes.
 #' @param legend_width Relative width of your legend. Default is 0.25.
 #' @param legend_height Relative width of your legend. Default is 0.5.
-#' @param base_width_per_cat_a Used for dynamically scaling the width. Default is 0.5.
-#' @param base_height_per_cat_b Used for dynamically scaling the height. Default is 0.3.
+#' @param base_width_per_x Used for dynamically scaling the width. Default is 0.5.
+#' @param base_height_per_y Used for dynamically scaling the height. Default is 0.3.
 #' @param reverse_ordering Should the cluster ordering be reversed?. Default is FALSE.
-#' @param cat_b_order Do you want to pass an explicit order?. Default is NULL.
 #' @param cluster_by_row Cluster rows, defaults to TRUE
 #' @param cluster_by_column Cluster columns, defaults to TRUE
 #' @param show_legend Do you want to show the legend? Default is TRUE
+#' @param cat_a Deprecated. Use `x` instead.
+#' @param cat_b Deprecated. Use `y` instead.
+#' @param cat_c Deprecated. Use `z` instead.
+#' @param cat_c_colors Deprecated. Use `z_colors` instead.
+#' @param cat_b_order Deprecated. Use `cluster_by_row` instead. Will be removed in a future version.
+#' @param base_width_per_cat_a Deprecated. Use `base_width_per_x` instead.
+#' @param base_height_per_cat_b Deprecated. Use `base_height_per_y` instead.
 #'
 #' @return A ggplot object representing the dice plot.
 #' @importFrom ggplot2 ggplot aes geom_rect geom_point scale_color_manual scale_fill_manual scale_x_discrete scale_y_discrete theme element_text element_blank unit labs coord_fixed ggtitle guides ggsave theme_minimal
@@ -41,66 +47,109 @@ utils::globalVariables(c(
 #' @importFrom RColorBrewer brewer.pal
 #' @export
 dice_plot <- function(data, 
-                      cat_a, 
-                      cat_b, 
-                      cat_c, 
+                      x = NULL, 
+                      y = NULL, 
+                      z = NULL, 
                       group = NULL, 
                       group_alpha = 0.5,
                       title = NULL,
-                      cat_c_colors = NULL, 
+                      z_colors = NULL, 
                       group_colors = NULL, 
                       custom_theme = theme_minimal(),
                       max_dot_size = 5,
                       min_dot_size = 2,
                       legend_width = 0.25,
                       legend_height = 0.5,
-                      base_width_per_cat_a = 0.5,  
-                      base_height_per_cat_b = 0.3,
+                      base_width_per_x = 0.5,  
+                      base_height_per_y = 0.3,
                       reverse_ordering = FALSE,
-                      cat_b_order = NULL, # how to add an deprec
                       cluster_by_row = TRUE,
                       cluster_by_column = TRUE,
-                      show_legend = TRUE
-                      ) {
+                      show_legend = TRUE,
+                      cat_a = NULL,
+                      cat_b = NULL,
+                      cat_c = NULL,
+                      cat_c_colors = NULL,
+                      cat_b_order = NULL,
+                      base_width_per_cat_a = NULL,
+                      base_height_per_cat_b = NULL
+) {
+  
+  # Handle deprecated parameters with warnings
+  if (!is.null(cat_a)) {
+    warning("The argument 'cat_a' is deprecated and will be removed in a future version >v1.5. Please use 'x' instead.", 
+            call. = FALSE, immediate. = TRUE)
+    x <- cat_a
+  }
+  
+  if (!is.null(cat_b)) {
+    warning("The argument 'cat_b' is deprecated and will be removed in a future version >v1.5. Please use 'y' instead.", 
+            call. = FALSE, immediate. = TRUE)
+    y <- cat_b
+  }
+  
+  if (!is.null(cat_c)) {
+    warning("The argument 'cat_c' is deprecated and will be removed in a future version >v1.5. Please use 'z' instead.", 
+            call. = FALSE, immediate. = TRUE)
+    z <- cat_c
+  }
+  
+  if (!is.null(cat_c_colors)) {
+    warning("The argument 'cat_c_colors' is deprecated and will be removed in a future version >v1.5. Please use 'z_colors' instead.", 
+            call. = FALSE, immediate. = TRUE)
+    z_colors <- cat_c_colors
+  }
+  
+  if (!is.null(base_width_per_cat_a)) {
+    warning("The argument 'base_width_per_cat_a' is deprecated and will be removed in a future version >v1.5. Please use 'base_width_per_x' instead.", 
+            call. = FALSE, immediate. = TRUE)
+    base_width_per_x <- base_width_per_cat_a
+  }
+  
+  if (!is.null(base_height_per_cat_b)) {
+    warning("The argument 'base_height_per_cat_b' is deprecated and will be removed in a future version >v1.5. Please use 'base_height_per_y' instead.", 
+            call. = FALSE, immediate. = TRUE)
+    base_height_per_y <- base_height_per_cat_b
+  }
   
   if (!is.null(cat_b_order)) {
-    warning("The argument 'cat_b_order' is deprecated and will be removed in a future version >v1.4. Please use 'clustering_by_row' instead.", 
+    warning("The argument 'cat_b_order' is deprecated and will be removed in a future version >v1.5. Please use 'cluster_by_row' instead.", 
             call. = FALSE, immediate. = TRUE)
   }
   
-  num_vars <- length(unique(data[[cat_c]]))
-  cat_c_levels = unique(data[[cat_c]])
-  if (is.null(cat_c_colors)) {
+  num_vars <- length(unique(data[[z]]))
+  z_levels = unique(data[[z]])
+  if (is.null(z_colors)) {
     available_colors <- RColorBrewer::brewer.pal.info
     suitable_palettes <- rownames(available_colors[available_colors$category == "qual" & available_colors$maxcolors >= num_vars, ])
     if (length(suitable_palettes) == 0) {
-      stop("No suitable ColorBrewer palette found for the number of categories in cat_c.")
+      stop("No suitable ColorBrewer palette found for the number of categories in z.")
     }
     palette_name <- suitable_palettes[1]  
-    default_cat_c_colors <- RColorBrewer::brewer.pal(n = num_vars, name = palette_name)
-    names(default_cat_c_colors) <- unique(data[[cat_c]])
-    cat_c_colors <- default_cat_c_colors
-  } else if (is.character(cat_c_colors) && length(cat_c_colors) == 1) {
-    if (!cat_c_colors %in% rownames(RColorBrewer::brewer.pal.info)) {
-      stop(paste("The specified palette '", cat_c_colors, "' is not a valid ColorBrewer palette.", sep = ""))
+    default_z_colors <- RColorBrewer::brewer.pal(n = num_vars, name = palette_name)
+    names(default_z_colors) <- unique(data[[z]])
+    z_colors <- default_z_colors
+  } else if (is.character(z_colors) && length(z_colors) == 1) {
+    if (!z_colors %in% rownames(RColorBrewer::brewer.pal.info)) {
+      stop(paste("The specified palette '", z_colors, "' is not a valid ColorBrewer palette.", sep = ""))
     }
-    max_colors_in_palette <- RColorBrewer::brewer.pal.info[cat_c_colors, "maxcolors"]
+    max_colors_in_palette <- RColorBrewer::brewer.pal.info[z_colors, "maxcolors"]
     if (num_vars > max_colors_in_palette) {
-      stop(paste("The specified palette '", cat_c_colors, "' does not have enough colors (needs ", num_vars, ", but only has ", max_colors_in_palette, ").", sep = ""))
+      stop(paste("The specified palette '", z_colors, "' does not have enough colors (needs ", num_vars, ", but only has ", max_colors_in_palette, ").", sep = ""))
     }
-    palette_colors <- RColorBrewer::brewer.pal(n = num_vars, name = cat_c_colors)
-    names(palette_colors) <- cat_c_levels
-    cat_c_colors <- palette_colors
+    palette_colors <- RColorBrewer::brewer.pal(n = num_vars, name = z_colors)
+    names(palette_colors) <- z_levels
+    z_colors <- palette_colors
   } else {
-    # cat_c_colors is assumed to be an explicit color palette
-    if (length(cat_c_colors) != num_vars) {
-      stop("The length of cat_c_colors does not match the number of categories in cat_c.")
+    # z_colors is assumed to be an explicit color palette
+    if (length(z_colors) != num_vars) {
+      stop("The length of z_colors does not match the number of categories in z.")
     }
-    if (is.null(names(cat_c_colors))) {
-      names(cat_c_colors) <- cat_c_levels
+    if (is.null(names(z_colors))) {
+      names(z_colors) <- z_levels
     }
-    cat_c_colors <- cat_c_colors[cat_c_levels]
-  
+    z_colors <- z_colors[z_levels]
+    
   }
   
   if (!is.null(group)) {
@@ -154,51 +203,51 @@ dice_plot <- function(data,
   }
   
   # Ensure consistent ordering of factors
-  if(!is.factor(data[[cat_a]])) {
-    data[[cat_a]] <- factor(data[[cat_a]], levels = unique(data[[cat_a]]))
+  if(!is.factor(data[[x]])) {
+    data[[x]] <- factor(data[[x]], levels = unique(data[[x]]))
   }
   
-  if(!is.factor(data[[cat_b]])) {
-    data[[cat_b]] <- factor(data[[cat_b]], levels = unique(data[[cat_b]]))
+  if(!is.factor(data[[y]])) {
+    data[[y]] <- factor(data[[y]], levels = unique(data[[y]]))
   }
   
-  if(!is.factor(data[[cat_c]])) {
-    data[[cat_c]] <- factor(data[[cat_c]], levels = names(cat_c_colors))
+  if(!is.factor(data[[z]])) {
+    data[[z]] <- factor(data[[z]], levels = names(z_colors))
   }
   if (!is.null(group)) {
-    # Check for unique group per cat_b
+    # Check for unique group per y
     group_check <- data %>%
-      group_by(!!sym(cat_b)) %>%
+      group_by(!!sym(y)) %>%
       summarise(unique_groups = n_distinct(!!sym(group)), .groups = "drop") %>%
       filter(unique_groups > 1)
     
     if (nrow(group_check) > 0) {
-      warning("Warning: The following cat_b categories have multiple groups assigned:\n",
-              paste(group_check[[cat_b]], collapse = ", "))
+      warning("Warning: The following y categories have multiple groups assigned:\n",
+              paste(group_check[[y]], collapse = ", "))
     }
   }
   
   # Define variable positions dynamically
-  var_positions <- create_var_positions(cat_c_colors, num_vars)
+  var_positions <- create_var_positions(z_colors, num_vars)
   
   if(cluster_by_row){
-    cat_b_order <- order_cat_b(data, group, cat_b, group_colors, reverse_ordering)
+    y_order <- order_cat_b(data, group, y, group_colors, reverse_ordering)
   } else {
-    cat_b_order <- levels(data[[cat_b]])
+    y_order <- levels(data[[y]])
   }
   
   if(cluster_by_column){
-    cat_a_order <- perform_clustering(data, cat_a, cat_b, cat_c)
+    x_order <- perform_clustering(data, x, y, z)
   } else {
-    cat_a_order <- levels(data[[cat_a]])
+    x_order <- levels(data[[x]])
   }
   
-  plot_data <- prepare_plot_data(data, cat_a, cat_b, cat_c, group, var_positions, cat_a_order, cat_b_order)
+  plot_data <- prepare_plot_data(data, x, y, z, group, var_positions, x_order, y_order)
   if (!is.null(group)) {
-    box_data <- prepare_box_data(data, cat_a, cat_b, group, cat_a_order, cat_b_order)
+    box_data <- prepare_box_data(data, x, y, group, x_order, y_order)
   }
   
-  dot_size <- calculate_dot_size(num_vars,max_dot_size,min_dot_size)
+  dot_size <- calculate_dot_size(num_vars, max_dot_size, min_dot_size)
   
   p <- ggplot()
   
@@ -209,15 +258,15 @@ dice_plot <- function(data,
                 color = "grey", alpha = group_alpha, linewidth = 0.5)
   }
   
-  # Add points for cat_c
+  # Add points for z
   p <- p +
     geom_point(data = plot_data, 
-               aes(x = x_pos, y = y_pos, color = !!sym(cat_c)), 
+               aes(x = x_pos, y = y_pos, color = !!sym(z)), 
                size = dot_size, show.legend = FALSE) +
     geom_point(data = plot_data, 
                aes(x = x_pos, y = y_pos), 
                size = dot_size + 0.5, shape = 1, color = "black", show.legend = FALSE) +
-    scale_color_manual(values = cat_c_colors, name = cat_c, breaks = names(cat_c_colors), guide = "none")
+    scale_color_manual(values = z_colors, name = z, breaks = names(z_colors), guide = "none")
   
   # Add fill scale for groups if group is provided
   if (!is.null(group)) {
@@ -226,8 +275,8 @@ dice_plot <- function(data,
   }
   
   p <- p +
-    scale_x_discrete(limits = levels(plot_data[[cat_a]])) +
-    scale_y_discrete(limits = levels(plot_data[[cat_b]])) +
+    scale_x_discrete(limits = levels(plot_data[[x]])) +
+    scale_y_discrete(limits = levels(plot_data[[y]])) +
     custom_theme +
     theme(
       axis.text.y = element_text(size = 12),
@@ -253,7 +302,7 @@ dice_plot <- function(data,
   # Create custom legends only if group is provided and show legend is true
   if (!is.null(group) && show_legend) {
     combined_legend_plot <- create_custom_legends(
-      data, cat_c, group, cat_c_colors, group_colors, var_positions, num_vars, dot_size
+      data, z, group, z_colors, group_colors, var_positions, num_vars, dot_size
     )
     
     # Combine the main plot and legends without 'preserve = "aspect"'

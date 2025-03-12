@@ -118,8 +118,44 @@ Explanation:
 
 Function to Create and Plot Dice Plots
 Now we finalize the data and plot the diceplot
-
 ```r
+# Load necessary libraries
+library(diceplot)
+library(tidyr)
+library(data.table)
+library(ggplot2)
+library(dplyr)
+library(tibble)
+library(grid)
+library(cowplot)
+library(RColorBrewer)
+
+# Define common variables
+cell_types <- c("Neuron", "Astrocyte", "Microglia", "Oligodendrocyte", "Endothelial")
+pathways <- c(
+  "Apoptosis", "Inflammation", "Metabolism", "Signal Transduction", "Synaptic Transmission",
+  "Cell Cycle", "DNA Repair", "Protein Synthesis", "Lipid Metabolism", "Neurotransmitter Release",
+  "Oxidative Stress", "Energy Production", "Calcium Signaling", "Synaptic Plasticity", "Immune Response"
+)
+
+# Assign groups to pathways
+pathway_groups <- data.frame(
+  Pathway = pathways,
+  Group = c(
+    "Linked", "UnLinked", "Other", "Linked", "UnLinked",
+    "UnLinked", "Other", "Other", "Other", "Linked",
+    "Other", "Other", "Linked", "UnLinked", "Other"
+  ),
+  stringsAsFactors = FALSE
+)
+
+pathology_variables <- c("AD", "Cancer", "Flu", "ADHD", "Age", "Weight")
+
+# Assign colors to pathology variables
+n_colors <- length(pathology_variables)
+colors <- brewer.pal(n = n_colors, name = "Set1")
+z_colors <- setNames(colors, pathology_variables)
+
 # Create dummy data
 set.seed(123)
 data <- expand.grid(CellType = cell_types, Pathway = pathways, stringsAsFactors = FALSE)
@@ -131,23 +167,20 @@ data <- data %>%
   ) %>%
   unnest(cols = c(PathologyVariable))
 
-# Function to create and plot dice plots
 # Merge the group assignments into the data
 data <- data %>%
   left_join(pathway_groups, by = "Pathway")
   
-# Use the dice_plot function
-# min dot_size is giving the minimal size of a point size the dots can be
-# with larger dataframe it might be necessary to set it to a smaller value
+# Use the dice_plot function with new parameter names
 p = dice_plot(
   data = data, 
-  cat_a = "CellType", 
-  cat_b = "Pathway", 
-  cat_c = "PathologyVariable", 
+  x = "CellType", 
+  y = "Pathway", 
+  z = "PathologyVariable", 
   group = "Group",
   group_alpha = 0.6,
   title = "Dice Plot with 6 Pathology Variables",
-  cat_c_colors = cat_c_colors, 
+  z_colors = z_colors, 
   custom_theme = theme_minimal(),
   min_dot_size = 2,
   max_dot_size = 4
@@ -155,7 +188,7 @@ p = dice_plot(
 
 print(p)
 # simply save the plot using the ggplot functions
-# ggsave("./diceplot_example.png",p,width = 8, height = 9)
+# ggsave("./diceplot_example.png", p, width = 8, height = 9)
 ```
 Explanation:
 
@@ -220,9 +253,19 @@ BibTeX entry
   - `pval_col` → `p_val`
 - Added deprecation warnings for old parameter names that will be removed in a future version >v1.5
 - Updated function documentation to reflect new parameter names
-- Improved handling of factors in diceplot
+
+## dice_plot function
+- Adopted cleaner naming conventions for parameters:
+  - `cat_a` → `x`
+  - `cat_b` → `y`
+  - `cat_c` → `z`
+  - `cat_c_colors` → `z_colors`
+  - `base_width_per_cat_a` → `base_width_per_x`
+  - `base_height_per_cat_b` → `base_height_per_y`
+- Added deprecation warnings for old parameter names that will be removed in a future version >v1.5
+- Updated function documentation to reflect new parameter names
+- Improved handling of factors in both functions
 - `cluster_by_row` argument defaults to TRUE, set to FALSE to use factor levels for ordering 
 - `cluster_by_column` argument defaults to TRUE, set to FALSE to use factor levels for ordering 
 - `show_legend` defaults to TRUE, controls whether to show or omit the legend plot
 - `cat_b_order` argument removed, will throw an error in a future version
-

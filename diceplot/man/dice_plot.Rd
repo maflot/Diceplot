@@ -6,36 +6,42 @@
 \usage{
 dice_plot(
   data,
-  cat_a,
-  cat_b,
-  cat_c,
+  x = NULL,
+  y = NULL,
+  z = NULL,
   group = NULL,
   group_alpha = 0.5,
   title = NULL,
-  cat_c_colors = NULL,
+  z_colors = NULL,
   group_colors = NULL,
   custom_theme = theme_minimal(),
   max_dot_size = 5,
   min_dot_size = 2,
   legend_width = 0.25,
   legend_height = 0.5,
-  base_width_per_cat_a = 0.5,
-  base_height_per_cat_b = 0.3,
+  base_width_per_x = 0.5,
+  base_height_per_y = 0.3,
   reverse_ordering = FALSE,
-  cat_b_order = NULL,
   cluster_by_row = TRUE,
   cluster_by_column = TRUE,
-  show_legend = TRUE
+  show_legend = TRUE,
+  cat_a = NULL,
+  cat_b = NULL,
+  cat_c = NULL,
+  cat_c_colors = NULL,
+  cat_b_order = NULL,
+  base_width_per_cat_a = NULL,
+  base_height_per_cat_b = NULL
 )
 }
 \arguments{
 \item{data}{A data frame containing the categorical and group variables for plotting.}
 
-\item{cat_a}{A string representing the column name in \code{data} for the first categorical variable.}
+\item{x}{A string representing the column name in \code{data} for the first categorical variable.}
 
-\item{cat_b}{A string representing the column name in \code{data} for the second categorical variable.}
+\item{y}{A string representing the column name in \code{data} for the second categorical variable.}
 
-\item{cat_c}{A string representing the column name in \code{data} for the third categorical variable.}
+\item{z}{A string representing the column name in \code{data} for the third categorical variable.}
 
 \item{group}{A string representing the column name in \code{data} for the grouping variable.}
 
@@ -43,7 +49,7 @@ dice_plot(
 
 \item{title}{An optional string for the plot title. Defaults to \code{NULL}.}
 
-\item{cat_c_colors}{A named vector of colors for \code{cat_c} categories or a string to chose a colorbrewer palette. Defaults to \code{NULL} using the first suitable colorbrewer palette to use.}
+\item{z_colors}{A named vector of colors for \code{z} categories or a string to chose a colorbrewer palette. Defaults to \code{NULL} using the first suitable colorbrewer palette to use.}
 
 \item{group_colors}{A named vector of colors for the group variableor a string to chose a colorbrewer palette. Defaults to \code{NULL} using the first suitable colorbrewer palette to use.}
 
@@ -57,23 +63,35 @@ dice_plot(
 
 \item{legend_height}{Relative width of your legend. Default is 0.5.}
 
-\item{base_width_per_cat_a}{Used for dynamically scaling the width. Default is 0.5.}
+\item{base_width_per_x}{Used for dynamically scaling the width. Default is 0.5.}
 
-\item{base_height_per_cat_b}{Used for dynamically scaling the height. Default is 0.3.}
+\item{base_height_per_y}{Used for dynamically scaling the height. Default is 0.3.}
 
 \item{reverse_ordering}{Should the cluster ordering be reversed?. Default is FALSE.}
-
-\item{cat_b_order}{Do you want to pass an explicit order?. Default is NULL.}
 
 \item{cluster_by_row}{Cluster rows, defaults to TRUE}
 
 \item{cluster_by_column}{Cluster columns, defaults to TRUE}
 
 \item{show_legend}{Do you want to show the legend? Default is TRUE}
+
+\item{cat_a}{Deprecated. Use \code{x} instead.}
+
+\item{cat_b}{Deprecated. Use \code{y} instead.}
+
+\item{cat_c}{Deprecated. Use \code{z} instead.}
+
+\item{cat_c_colors}{Deprecated. Use \code{z_colors} instead.}
+
+\item{cat_b_order}{Deprecated. Use \code{cluster_by_row} instead. Will be removed in a future version.}
+
+\item{base_width_per_cat_a}{Deprecated. Use \code{base_width_per_x} instead.}
+
+\item{base_height_per_cat_b}{Deprecated. Use \code{base_height_per_y} instead.}
 }
 \value{
 A ggplot object representing the dice plot.
 }
 \description{
-This function generates a custom plot based on three categorical variables and a group variable. It adapts to the number of unique categories in \code{cat_c} and allows customization of various plot aesthetics.
+This function generates a custom plot based on three categorical variables and a group variable. It adapts to the number of unique categories in \code{z} and allows customization of various plot aesthetics.
 }

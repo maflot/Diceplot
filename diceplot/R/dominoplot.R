@@ -1,4 +1,4 @@
-utils::globalVariables(c("label_x", "label_y", "adj_logfc"))
+utils::globalVariables(c("label_x", "label_y", "adj_logfc", "feature_id", "gene_index", "celltype_numeric", "x_offset", "y_offset", "aes", "case_when"))
 
 #' Domino Plot Visualization
 #'
@@ -41,7 +41,7 @@ utils::globalVariables(c("label_x", "label_y", "adj_logfc"))
 #' @importFrom utils globalVariables
 #' @importFrom rlang sym
 #' @importFrom ggplot2 ggplot aes geom_rect geom_point scale_color_gradient2 scale_size_continuous scale_x_continuous expansion scale_y_continuous labs theme_minimal theme element_text element_line element_blank element_rect annotate coord_flip coord_cartesian ggsave
-#' @importFrom dplyr select mutate filter left_join arrange desc bind_rows
+#' @importFrom dplyr select mutate filter left_join arrange desc bind_rows case_when
 #' @importFrom utils globalVariables
 #' @export
 domino_plot <- function(data, 
