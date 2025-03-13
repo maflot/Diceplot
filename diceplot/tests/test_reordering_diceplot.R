@@ -1,4 +1,5 @@
 # Load necessary libraries
+library(diceplot)
 library(tidyr)
 library(data.table)
 library(ggplot2)

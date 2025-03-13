@@ -25,4 +25,5 @@ Imports:
     tibble,
     stats,
     rlang,
-    RColorBrewer
+    RColorBrewer,
+    testthat

@@ -246,5 +246,6 @@ BibTeX entry
 - update the examples to real world data
 ## domino_plot function
 - add proper legend to the plot, remove intermediate plot
+- default logfc crop to NULL
 
 ## dice_plot function

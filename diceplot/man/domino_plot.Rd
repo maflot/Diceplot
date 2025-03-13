@@ -7,7 +7,6 @@
 domino_plot(
   data,
   gene_list,
-  switch_axis = FALSE,
   min_dot_size = 1,
   max_dot_size = 5,
   spacing_factor = 3,
@@ -17,7 +16,7 @@ domino_plot(
   contrast = "Contrast",
   log_fc = "avg_log2FC",
   p_val = "p_val_adj",
-  logfc_limits = c(-1.5, 1.5),
+  logfc_limits = NULL,
   logfc_colors = c(low = "blue", mid = "white", high = "red"),
   color_scale_name = "Log2 Fold Change",
   size_scale_name = "-log10(adj. p-value)",
@@ -28,13 +27,18 @@ domino_plot(
   output_file = NULL,
   cluster_method = "complete",
   cluster_y_axis = TRUE,
+  cluster_var_id = TRUE,
   reverse_y_ordering = FALSE,
   show_legend = TRUE,
   legend_width = 0.25,
+  legend_height = 0.5,
+  custom_legend = TRUE,
+  show_var_positions = FALSE,
   feature_col = NULL,
   celltype_col = NULL,
   contrast_col = NULL,
   logfc_col = NULL,
+  switch_axis = FALSE,
   pval_col = NULL
 )
 }
@@ -42,8 +46,6 @@ domino_plot(
 \item{data}{A data frame containing gene expression data.}
 
 \item{gene_list}{A character vector of gene names to include in the plot.}
-
-\item{switch_axis}{A logical value indicating whether to switch the x and y axes. Default is \code{FALSE}.}
 
 \item{min_dot_size}{A numeric value indicating the minimum dot size in the plot. Default is \code{1}.}
 
@@ -63,7 +65,7 @@ domino_plot(
 
 \item{p_val}{A string representing the column name in \code{data} for the adjusted p-values. Default is \code{"p_val_adj"}.}
 
-\item{logfc_limits}{A numeric vector of length 2 specifying the limits for the log fold change color scale. Default is \code{c(-1.5, 1.5)}.}
+\item{logfc_limits}{A numeric vector of length 2 specifying the limits for the log fold change color scale. If \code{NULL} (default), no limits are applied.}
 
 \item{logfc_colors}{A named vector specifying the colors for the low, mid, and high values in the color scale. Default is \code{c(low = "blue", mid = "white", high = "red")}.}
 
@@ -85,7 +87,21 @@ domino_plot(
 
 \item{cluster_y_axis}{A logical value indicating whether to cluster the y-axis (cell types). Default is \code{TRUE}.}
 
+\item{cluster_var_id}{A logical value indicating whether to cluster the var_id. Default is \code{TRUE}.}
+
 \item{reverse_y_ordering}{A logical value indicating whether to reverse the y-axis ordering after clustering. Default is \code{FALSE}.}
+
+\item{show_legend}{A logical value indicating whether to show the legend. Default is \code{TRUE}.}
+
+\item{legend_width}{A numeric value specifying the relative width of the legend. Default is \code{0.25}.}
+
+\item{legend_height}{A numeric value specifying the relative height of the legend. Default is \code{0.5}.}
+
+\item{custom_legend}{A logical value indicating whether to use a custom legend. Default is \code{TRUE}.}
+
+\item{show_var_positions}{A logical value indicating whether to show the intermediate variable positions plot. Default is \code{FALSE}.
+When \code{output_file} is specified with a PDF extension, both plots will be saved to a multi-page PDF if this is \code{TRUE}.
+A warning will be shown if \code{show_var_positions} is \code{TRUE} but the output file is not a PDF.}
 
 \item{feature_col}{Deprecated. Use \code{x} instead.}
 
@@ -95,10 +111,12 @@ domino_plot(
 
 \item{logfc_col}{Deprecated. Use \code{log_fc} instead.}
 
+\item{switch_axis}{A logical value indicating whether to switch the x and y axes. Default is \code{FALSE}.}
+
 \item{pval_col}{Deprecated. Use \code{p_val} instead.}
 }
 \value{
-A ggplot object representing the domino plot.
+A list containing the domino plot and optionally the variable positions plot.
 }
 \description{
 This function generates a plot to visualize gene expression levels for a given list of genes. The size of the dots can be customized, and the plot can be saved to an output file if specified.
