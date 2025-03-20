@@ -532,14 +532,8 @@ domino_plot <- function(data,
       
       # Open PDF device
       grDevices::pdf(output_file, width = width, height = height)
-      
-      # Always include the main plot as the first page
       print(final_plot)
-      
-      # Add the intermediate plot as the second page
       print(var_pos_plot)
-      
-      # Close the PDF device
       grDevices::dev.off()
     } else {
       # Regular single plot output
@@ -552,6 +546,5 @@ domino_plot <- function(data,
   if (show_var_positions) {
     result$var_positions_plot <- var_pos_plot
   }
-  
   return(result)
 }

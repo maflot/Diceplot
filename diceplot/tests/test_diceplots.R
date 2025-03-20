@@ -1,3 +1,5 @@
+## EXAMPLE WITH FULLY ARTIFICIAL DATA
+
 # Load necessary libraries
 library(diceplot)
 library(tidyr)
