@@ -387,6 +387,10 @@ If you have any questions, suggestions, or issues, please open an issue on GitHu
 ## Change Log v0.1.6
 
 - Update the examples to real world data
+- move example files out of test to example
+
+### geom_dice_sf
+- add prototype for geom_dice_sf function
 
 ### domino_plot function
 - Add proper legend to the plot, remove intermediate plot

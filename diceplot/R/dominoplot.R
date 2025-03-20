@@ -1,4 +1,4 @@
-utils::globalVariables(c("label_x", "label_y", "adj_logfc", "feature_id", "gene_index", "celltype_numeric", "x_offset", "y_offset", "aes", "case_when"))
+utils::globalVariables(c("label_x", "label_y", "adj_logfc", "feature_id", "gene_index", "celltype_numeric","mean_logfc", "x_offset", "y_offset", "aes", "case_when"))
 
 #' Domino Plot Visualization
 #'
@@ -6,36 +6,39 @@ utils::globalVariables(c("label_x", "label_y", "adj_logfc", "feature_id", "gene_
 #'
 #' @param data A data frame containing gene expression data.
 #' @param gene_list A character vector of gene names to include in the plot.
-#' @param switch_axis A logical value indicating whether to switch the x and y axes. Default is `FALSE`.
-#' @param min_dot_size A numeric value indicating the minimum dot size in the plot. Default is `1`.
-#' @param max_dot_size A numeric value indicating the maximum dot size in the plot. Default is `5`.
-#' @param spacing_factor A numeric value indicating the spacing between gene pairs. Default is `3`.
-#' @param var_id A string representing the column name in `data` for the variable identifier. Default is `"var"`.
 #' @param x A string representing the column name in `data` for the feature variable (e.g., genes). Default is `"gene"`.
 #' @param y A string representing the column name in `data` for the cell type variable. Default is `"Celltype"`.
 #' @param contrast A string representing the column name in `data` for the contrast variable. Default is `"Contrast"`.
+#' @param var_id A string representing the column name in `data` for the variable identifier. Default is `"var"`.
 #' @param log_fc A string representing the column name in `data` for the log fold change values. Default is `"avg_log2FC"`.
 #' @param p_val A string representing the column name in `data` for the adjusted p-values. Default is `"p_val_adj"`.
-#' @param logfc_limits A numeric vector of length 2 specifying the limits for the log fold change color scale. If `NULL` (default), no limits are applied.
+#' @param min_dot_size A numeric value indicating the minimum dot size in the plot. Default is `1`.
+#' @param max_dot_size A numeric value indicating the maximum dot size in the plot. Default is `5`.
+#' @param spacing_factor A numeric value indicating the spacing between gene pairs. Default is `3`.
 #' @param logfc_colors A named vector specifying the colors for the low, mid, and high values in the color scale. Default is `c(low = "blue", mid = "white", high = "red")`.
 #' @param color_scale_name A string specifying the name of the color scale in the legend. Default is `"Log2 Fold Change"`.
 #' @param size_scale_name A string specifying the name of the size scale in the legend. Default is `"-log10(adj. p-value)"`.
 #' @param axis_text_size A numeric value specifying the size of the axis text. Default is `8`.
-#' @param aspect_ratio A numeric value specifying the aspect ratio of the plot. If `NULL`, it's calculated automatically. Default is `NULL`.
-#' @param base_width A numeric value specifying the base width for saving the plot. Default is `5`.
-#' @param base_height A numeric value specifying the base height for saving the plot. Default is `4`.
-#' @param output_file An optional string specifying the path to save the plot. If `NULL`, the plot is not saved. Default is `NULL`.
+#' @param x_axis_text_size A numeric value specifying the size of the x-axis text. If NULL, uses `axis_text_size`. Default is `NULL`.
+#' @param y_axis_text_size A numeric value specifying the size of the y-axis text. If NULL, uses `axis_text_size`. Default is `NULL`.
+#' @param legend_text_size A numeric value specifying the size of the legend text. Default is `8`.
 #' @param cluster_method The clustering method to use. Default is `"complete"`.
 #' @param cluster_y_axis A logical value indicating whether to cluster the y-axis (cell types). Default is `TRUE`.
 #' @param cluster_var_id A logical value indicating whether to cluster the var_id. Default is `TRUE`.
-#' @param reverse_y_ordering A logical value indicating whether to reverse the y-axis ordering after clustering. Default is `FALSE`.
+#' @param base_width A numeric value specifying the base width for saving the plot. Default is `5`.
+#' @param base_height A numeric value specifying the base height for saving the plot. Default is `4`.
 #' @param show_legend A logical value indicating whether to show the legend. Default is `TRUE`.
 #' @param legend_width A numeric value specifying the relative width of the legend. Default is `0.25`.
 #' @param legend_height A numeric value specifying the relative height of the legend. Default is `0.5`.
 #' @param custom_legend A logical value indicating whether to use a custom legend. Default is `TRUE`.
+#' @param logfc_limits A numeric vector of length 2 specifying the limits for the log fold change color scale. If `NULL` (default), no limits are applied.
+#' @param aspect_ratio A numeric value specifying the aspect ratio of the plot. If `NULL`, it's calculated automatically. Default is `NULL`.
+#' @param switch_axis A logical value indicating whether to switch the x and y axes. Default is `FALSE`.
+#' @param reverse_y_ordering A logical value indicating whether to reverse the y-axis ordering after clustering. Default is `FALSE`.
 #' @param show_var_positions A logical value indicating whether to show the intermediate variable positions plot. Default is `FALSE`.
 #'   When `output_file` is specified with a PDF extension, both plots will be saved to a multi-page PDF if this is `TRUE`.
 #'   A warning will be shown if `show_var_positions` is `TRUE` but the output file is not a PDF.
+#' @param output_file An optional string specifying the path to save the plot. If `NULL`, the plot is not saved. Default is `NULL`.
 #' @param feature_col Deprecated. Use `x` instead.
 #' @param celltype_col Deprecated. Use `y` instead.
 #' @param contrast_col Deprecated. Use `contrast` instead.
@@ -55,38 +58,41 @@ utils::globalVariables(c("label_x", "label_y", "adj_logfc", "feature_id", "gene_
 #' @export
 domino_plot <- function(data, 
                         gene_list, 
-                        min_dot_size = 1, 
-                        max_dot_size = 5, 
-                        spacing_factor = 3,
-                        var_id = "var",
                         x = "gene",
                         y = "Celltype",
                         contrast = "Contrast",
+                        var_id = "var",
                         log_fc = "avg_log2FC",
                         p_val = "p_val_adj",
-                        logfc_limits = NULL,
+                        min_dot_size = 1, 
+                        max_dot_size = 5, 
+                        spacing_factor = 3,
                         logfc_colors = c(low = "blue", mid = "white", high = "red"),
                         color_scale_name = "Log2 Fold Change",
                         size_scale_name = "-log10(adj. p-value)",
                         axis_text_size = 8,
-                        aspect_ratio = NULL,
-                        base_width = 5,
-                        base_height = 4,
-                        output_file = NULL,
+                        x_axis_text_size = NULL,
+                        y_axis_text_size = NULL,
+                        legend_text_size = 8,
                         cluster_method = "complete",
                         cluster_y_axis = TRUE,
                         cluster_var_id = TRUE,
-                        reverse_y_ordering = FALSE,
+                        base_width = 5,
+                        base_height = 4,
                         show_legend = TRUE,
                         legend_width = 0.25,
                         legend_height = 0.5,
                         custom_legend = TRUE,
+                        logfc_limits = NULL,
+                        aspect_ratio = NULL,
+                        switch_axis = FALSE,
+                        reverse_y_ordering = FALSE,
                         show_var_positions = FALSE,
+                        output_file = NULL,
                         feature_col = NULL,
                         celltype_col = NULL,
                         contrast_col = NULL,
                         logfc_col = NULL,
-                        switch_axis = FALSE, 
                         pval_col = NULL) {
   
   # Handle deprecated parameters with warnings
@@ -118,6 +124,15 @@ domino_plot <- function(data,
     warning("The argument 'pval_col' is deprecated and will be removed in a future version >v1.5. Please use 'p_val' instead.", 
             call. = FALSE, immediate. = TRUE)
     p_val <- pval_col
+  }
+  
+  # Set axis text sizes if NULL
+  if (is.null(x_axis_text_size)) {
+    x_axis_text_size <- axis_text_size
+  }
+  
+  if (is.null(y_axis_text_size)) {
+    y_axis_text_size <- axis_text_size
   }
   
   # Get unique contrast levels from the data
@@ -313,7 +328,6 @@ domino_plot <- function(data,
       x_offset = 2 + x_offset 
     )
   
-  spacing_factor <- 3
   var_positions <- dplyr::bind_rows(var_positions_left, var_positions_right)
   
   # Create the variable positions plot
@@ -328,7 +342,10 @@ domino_plot <- function(data,
       x = "X Position",
       y = "Y Position"
     ) +
-    theme(legend.position = "bottom") +
+    theme(
+      legend.position = "bottom",
+      legend.text = element_text(size = legend_text_size)
+    ) +
     coord_fixed()
   
   # Here we join the position information
@@ -414,8 +431,10 @@ domino_plot <- function(data,
     labs(x = "", y = "") +
     theme_minimal() +
     theme(
-      axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 1),
-      axis.text.y = element_text(size = axis_text_size),
+      axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 1, size = x_axis_text_size),
+      axis.text.y = element_text(size = y_axis_text_size),
+      legend.text = element_text(size = legend_text_size),
+      legend.title = element_text(size = legend_text_size + 1),
       panel.grid.major = element_line(color = "grey90"),
       panel.grid.minor = element_blank(),
       strip.background = element_rect(fill = "lightgrey"),
@@ -426,12 +445,12 @@ domino_plot <- function(data,
              x = seq(1, by = spacing_factor, length.out = length(gene_list)), 
              y = n_celltypes + 1, 
              label = contrast_labels[1], 
-             angle = 90, hjust = 0, size = 3) +
+             angle = 90, hjust = 0, size = x_axis_text_size/3) +
     annotate("text", 
              x = seq(2, by = spacing_factor, length.out = length(gene_list)), 
              y = n_celltypes + 1, 
              label = contrast_labels[2], 
-             angle = 90, hjust = 0, size = 3)
+             angle = 90, hjust = 0, size = x_axis_text_size/3)
   
   if (switch_axis) {
     p <- p + coord_flip()
@@ -460,7 +479,8 @@ domino_plot <- function(data,
         color_scale_name = color_scale_name,
         size_scale_name = size_scale_name,
         min_dot_size = min_dot_size,
-        max_dot_size = max_dot_size
+        max_dot_size = max_dot_size,
+        legend_text_size = legend_text_size
       )
     } else {
       custom_legend_plot <- create_custom_domino_legends(
@@ -473,7 +493,8 @@ domino_plot <- function(data,
         color_scale_name = color_scale_name,
         size_scale_name = size_scale_name,
         min_dot_size = min_dot_size,
-        max_dot_size = max_dot_size
+        max_dot_size = max_dot_size,
+        legend_text_size = legend_text_size
       )
     }
     

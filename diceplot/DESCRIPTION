@@ -26,4 +26,4 @@ Imports:
     stats,
     rlang,
     RColorBrewer,
-    testthat
+    sf

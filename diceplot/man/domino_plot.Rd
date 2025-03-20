@@ -7,38 +7,41 @@
 domino_plot(
   data,
   gene_list,
-  min_dot_size = 1,
-  max_dot_size = 5,
-  spacing_factor = 3,
-  var_id = "var",
   x = "gene",
   y = "Celltype",
   contrast = "Contrast",
+  var_id = "var",
   log_fc = "avg_log2FC",
   p_val = "p_val_adj",
-  logfc_limits = NULL,
+  min_dot_size = 1,
+  max_dot_size = 5,
+  spacing_factor = 3,
   logfc_colors = c(low = "blue", mid = "white", high = "red"),
   color_scale_name = "Log2 Fold Change",
   size_scale_name = "-log10(adj. p-value)",
   axis_text_size = 8,
-  aspect_ratio = NULL,
-  base_width = 5,
-  base_height = 4,
-  output_file = NULL,
+  x_axis_text_size = NULL,
+  y_axis_text_size = NULL,
+  legend_text_size = 8,
   cluster_method = "complete",
   cluster_y_axis = TRUE,
   cluster_var_id = TRUE,
-  reverse_y_ordering = FALSE,
+  base_width = 5,
+  base_height = 4,
   show_legend = TRUE,
   legend_width = 0.25,
   legend_height = 0.5,
   custom_legend = TRUE,
+  logfc_limits = NULL,
+  aspect_ratio = NULL,
+  switch_axis = FALSE,
+  reverse_y_ordering = FALSE,
   show_var_positions = FALSE,
+  output_file = NULL,
   feature_col = NULL,
   celltype_col = NULL,
   contrast_col = NULL,
   logfc_col = NULL,
-  switch_axis = FALSE,
   pval_col = NULL
 )
 }
@@ -47,25 +50,23 @@ domino_plot(
 
 \item{gene_list}{A character vector of gene names to include in the plot.}
 
-\item{min_dot_size}{A numeric value indicating the minimum dot size in the plot. Default is \code{1}.}
-
-\item{max_dot_size}{A numeric value indicating the maximum dot size in the plot. Default is \code{5}.}
-
-\item{spacing_factor}{A numeric value indicating the spacing between gene pairs. Default is \code{3}.}
-
-\item{var_id}{A string representing the column name in \code{data} for the variable identifier. Default is \code{"var"}.}
-
 \item{x}{A string representing the column name in \code{data} for the feature variable (e.g., genes). Default is \code{"gene"}.}
 
 \item{y}{A string representing the column name in \code{data} for the cell type variable. Default is \code{"Celltype"}.}
 
 \item{contrast}{A string representing the column name in \code{data} for the contrast variable. Default is \code{"Contrast"}.}
 
+\item{var_id}{A string representing the column name in \code{data} for the variable identifier. Default is \code{"var"}.}
+
 \item{log_fc}{A string representing the column name in \code{data} for the log fold change values. Default is \code{"avg_log2FC"}.}
 
 \item{p_val}{A string representing the column name in \code{data} for the adjusted p-values. Default is \code{"p_val_adj"}.}
 
-\item{logfc_limits}{A numeric vector of length 2 specifying the limits for the log fold change color scale. If \code{NULL} (default), no limits are applied.}
+\item{min_dot_size}{A numeric value indicating the minimum dot size in the plot. Default is \code{1}.}
+
+\item{max_dot_size}{A numeric value indicating the maximum dot size in the plot. Default is \code{5}.}
+
+\item{spacing_factor}{A numeric value indicating the spacing between gene pairs. Default is \code{3}.}
 
 \item{logfc_colors}{A named vector specifying the colors for the low, mid, and high values in the color scale. Default is \code{c(low = "blue", mid = "white", high = "red")}.}
 
@@ -75,13 +76,11 @@ domino_plot(
 
 \item{axis_text_size}{A numeric value specifying the size of the axis text. Default is \code{8}.}
 
-\item{aspect_ratio}{A numeric value specifying the aspect ratio of the plot. If \code{NULL}, it's calculated automatically. Default is \code{NULL}.}
+\item{x_axis_text_size}{A numeric value specifying the size of the x-axis text. If NULL, uses \code{axis_text_size}. Default is \code{NULL}.}
 
-\item{base_width}{A numeric value specifying the base width for saving the plot. Default is \code{5}.}
+\item{y_axis_text_size}{A numeric value specifying the size of the y-axis text. If NULL, uses \code{axis_text_size}. Default is \code{NULL}.}
 
-\item{base_height}{A numeric value specifying the base height for saving the plot. Default is \code{4}.}
-
-\item{output_file}{An optional string specifying the path to save the plot. If \code{NULL}, the plot is not saved. Default is \code{NULL}.}
+\item{legend_text_size}{A numeric value specifying the size of the legend text. Default is \code{8}.}
 
 \item{cluster_method}{The clustering method to use. Default is \code{"complete"}.}
 
@@ -89,7 +88,9 @@ domino_plot(
 
 \item{cluster_var_id}{A logical value indicating whether to cluster the var_id. Default is \code{TRUE}.}
 
-\item{reverse_y_ordering}{A logical value indicating whether to reverse the y-axis ordering after clustering. Default is \code{FALSE}.}
+\item{base_width}{A numeric value specifying the base width for saving the plot. Default is \code{5}.}
+
+\item{base_height}{A numeric value specifying the base height for saving the plot. Default is \code{4}.}
 
 \item{show_legend}{A logical value indicating whether to show the legend. Default is \code{TRUE}.}
 
@@ -99,9 +100,19 @@ domino_plot(
 
 \item{custom_legend}{A logical value indicating whether to use a custom legend. Default is \code{TRUE}.}
 
+\item{logfc_limits}{A numeric vector of length 2 specifying the limits for the log fold change color scale. If \code{NULL} (default), no limits are applied.}
+
+\item{aspect_ratio}{A numeric value specifying the aspect ratio of the plot. If \code{NULL}, it's calculated automatically. Default is \code{NULL}.}
+
+\item{switch_axis}{A logical value indicating whether to switch the x and y axes. Default is \code{FALSE}.}
+
+\item{reverse_y_ordering}{A logical value indicating whether to reverse the y-axis ordering after clustering. Default is \code{FALSE}.}
+
 \item{show_var_positions}{A logical value indicating whether to show the intermediate variable positions plot. Default is \code{FALSE}.
 When \code{output_file} is specified with a PDF extension, both plots will be saved to a multi-page PDF if this is \code{TRUE}.
 A warning will be shown if \code{show_var_positions} is \code{TRUE} but the output file is not a PDF.}
+
+\item{output_file}{An optional string specifying the path to save the plot. If \code{NULL}, the plot is not saved. Default is \code{NULL}.}
 
 \item{feature_col}{Deprecated. Use \code{x} instead.}
 
@@ -110,8 +121,6 @@ A warning will be shown if \code{show_var_positions} is \code{TRUE} but the outp
 \item{contrast_col}{Deprecated. Use \code{contrast} instead.}
 
 \item{logfc_col}{Deprecated. Use \code{log_fc} instead.}
-
-\item{switch_axis}{A logical value indicating whether to switch the x and y axes. Default is \code{FALSE}.}
 
 \item{pval_col}{Deprecated. Use \code{p_val} instead.}
 }
