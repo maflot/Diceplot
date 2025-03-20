@@ -375,11 +375,11 @@ create_custom_legends <- function(data, cat_c, group, cat_c_colors, group_colors
   return(combined_legend_plot)
 }
 
-
 #' @title Create Custom Domino Legends
 #' @description
 #' Creates custom legend plots for domino plot, including variable positions within the domino,
 #' and explanations for log fold change and p-values. Improved text alignment and dot size ratio.
+#' All legend aspects are centered.
 #' @param contrast_levels A character vector with the two contrast levels.
 #' @param var_positions A data frame containing variable positions data.
 #' @param var_id A string specifying the variable identifier column name.
@@ -420,10 +420,7 @@ create_custom_domino_legends <- function(
     y = legend_vars$y_offset
   )
   
-  # Ensure the positions match the pattern in the example
-  # We'll maintain the exact positioning as defined in the switch statement
-  
-  # Create the position legend plot without the rectangle
+  # Create the position legend plot centered - adjust coordinate system to match other legends
   vars_legend_plot <- ggplot() +
     # Add dots showing variable positions using the correct pattern
     geom_point(
@@ -460,38 +457,40 @@ create_custom_domino_legends <- function(
     ggtitle("Domino Layout") +
     theme_void() +
     theme(
-      plot.margin = margin(20, 40, 20, 40),
+      plot.margin = margin(10, 20, 10, 20),  # Match margins with other legends
       plot.background = element_rect(fill = "white", color = NA),
-      plot.title = element_text(hjust = 0.5, size = 12, face = "bold", margin = margin(0, 0, 10, 0))
+      plot.title = element_text(hjust = 0.5, size = 12, face = "bold", margin = margin(0, 0, 10, 0)),
+      # Force plot to use the entire available space
+      plot.title.position = "plot"
     ) +
     coord_fixed(
       ratio = 1,
-      xlim = c(-0.5, 0.5),
+      xlim = c(-0.75, 0.75),  # Match x-limits with other legends
       ylim = c(-0.5, 0.5),
-      expand = TRUE,
+      expand = FALSE,  # Match with other legends
       clip = "off"
     )
   
-  # Create data for log fold change legend
+  # Create data for log fold change legend - centered
   logfc_range <- seq(from = logfc_limits[1], to = logfc_limits[2], length.out = 5)
   logfc_legend_data <- data.frame(
     logfc = logfc_range,
-    x = rep(1, length(logfc_range)),
+    x = rep(0, length(logfc_range)),  # Centered at x=0
     y = seq(length(logfc_range), 1)
   )
   
-  # Create a gradient data frame for the color bar
+  # Create a gradient data frame for the color bar - centered
   grad_data <- expand.grid(
-    x = seq(1, 1.5, length.out = 50),
+    x = seq(-0.25, 0.25, length.out = 50),  # Centered around x=0
     y = seq(1, 5, length.out = 50)
   )
   grad_data$z <- rep(seq(logfc_limits[1], logfc_limits[2], length.out = 50), each = 50)
   
-  # Create tick positions for the color bar
+  # Create tick positions for the color bar - centered
   tick_positions <- seq(1, 5, length.out = 5)
   tick_labels <- seq(logfc_limits[1], logfc_limits[2], length.out = 5)
   tick_data <- data.frame(
-    x = rep(1.6, length(tick_positions)),
+    x = rep(0.35, length(tick_positions)),  # Adjusted for centered bar
     y = tick_positions,
     label = sprintf("%.1f", tick_labels)
   )
@@ -504,7 +503,7 @@ create_custom_domino_legends <- function(
     ) +
     # Add border around the color bar
     geom_rect(
-      aes(xmin = 1, xmax = 1.5, ymin = 1, ymax = 5),
+      aes(xmin = -0.25, xmax = 0.25, ymin = 1, ymax = 5),  # Centered
       fill = NA, color = "black", size = 0.5
     ) +
     # Add scale for the fill
@@ -526,32 +525,31 @@ create_custom_domino_legends <- function(
     theme_void() +
     theme(
       legend.position = "none",
-      plot.margin = margin(10, 50, 10, 10),
+      plot.margin = margin(10, 20, 10, 20),  # Equal margins
       plot.background = element_rect(fill = "white", color = NA),
-      plot.title = element_text(hjust = 0, size = 11, face = "bold", margin = margin(0, 0, 10, 0))
+      plot.title = element_text(hjust = 0.5, size = 11, face = "bold", margin = margin(0, 0, 10, 0))  # Centered title
     ) +
     coord_fixed(
       ratio = 1,
-      xlim = c(0.8, 3),
+      xlim = c(-0.75, 0.75),  # Centered x limits
       ylim = c(0.8, 5.2),
       expand = FALSE,
       clip = "off"
     ) +
     ggtitle(color_scale_name)
   
-  # Create data for p-value legend
+  # Create data for p-value legend - centered
   p_val_range <- seq(from = 0, to = 5, length.out = 5)  # -log10(p) from 0 to 5
   p_val_legend_data <- data.frame(
     log_p_val = p_val_range,
-    x = rep(1, length(p_val_range)),
+    x = rep(0, length(p_val_range)),  # Centered at x=0
     y = seq(length(p_val_range), 1)
   )
   
   # Calculate a better size range for dots based on the range of p-values
-  # This ensures the visual scaling is more appropriate
   size_range <- c(min_dot_size * 1.2, max_dot_size * 0.8)  # Adjusted for better visual scaling
   
-  # Create p-value legend plot with improved text alignment
+  # Create p-value legend plot with centered elements
   p_val_legend_plot <- ggplot() +
     geom_point(
       data = p_val_legend_data,
@@ -571,13 +569,13 @@ create_custom_domino_legends <- function(
     theme_void() +
     theme(
       legend.position = "none",
-      plot.margin = margin(10, 50, 10, 10),
+      plot.margin = margin(10, 20, 10, 20),  # Equal margins
       plot.background = element_rect(fill = "white", color = NA),
-      plot.title = element_text(hjust = 0, size = 11, face = "bold", margin = margin(0, 0, 10, 0))
+      plot.title = element_text(hjust = 0.5, size = 11, face = "bold", margin = margin(0, 0, 10, 0))  # Centered title
     ) +
     coord_fixed(
       ratio = 1,
-      xlim = c(0.5, 3),  # Wider x-range for text
+      xlim = c(-0.75, 0.75),  # Centered x limits
       ylim = c(0.5, length(p_val_range) + 0.5),
       expand = FALSE,
       clip = "off"
@@ -599,6 +597,7 @@ create_custom_domino_legends <- function(
     p_val_legend_plot,
     ncol = 1,
     align = 'v',
+    axis = 'lr',  # Align plots at their left and right edges
     rel_heights = c(2, 1.5, 1.5)
   )
   

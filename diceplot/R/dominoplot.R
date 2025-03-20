@@ -439,6 +439,10 @@ domino_plot <- function(data,
     p <- p + coord_cartesian(clip = "off")
   }
   
+  legend_var_positions <- create_var_positions(var_list_left, length(var_list_left)) %>%
+    mutate(!!sym(var_id) := names(var_list_left),
+           !!sym(contrast) := contrast_levels[1])
+  
   # Handle legend display
   if (show_legend && custom_legend) {
     # Create custom legends
@@ -448,7 +452,7 @@ domino_plot <- function(data,
       data_range <- range(plot_data$adj_logfc, na.rm = TRUE)
       custom_legend_plot <- create_custom_domino_legends(
         contrast_levels = contrast_labels,
-        var_positions = var_positions,
+        var_positions = legend_var_positions,
         var_id = var_id,
         contrast = contrast,
         logfc_colors = logfc_colors,
@@ -461,7 +465,7 @@ domino_plot <- function(data,
     } else {
       custom_legend_plot <- create_custom_domino_legends(
         contrast_levels = contrast_labels,
-        var_positions = var_positions,
+        var_positions = legend_var_positions,
         var_id = var_id,
         contrast = contrast,
         logfc_colors = logfc_colors,
