@@ -391,6 +391,7 @@ If you have any questions, suggestions, or issues, please open an issue on GitHu
 
 ### geom_dice_sf
 - add prototype for geom_dice_sf function
+- see examples/geom_dice_sf_test2.R
 
 ### domino_plot function
 - Add proper legend to the plot, remove intermediate plot
