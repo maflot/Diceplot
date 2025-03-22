@@ -340,6 +340,8 @@ The `domino_plot()` function has several important parameters:
 | `max_dot_size` | Maximum dot size for most significant results |
 | `logfc_limits` | Custom limits for logFC color scale |
 
+### Output
+![ZEBRA_example1](ZEBRA_example1.png)
 ### Interpreting the Domino Plot
 
 In a domino plot:
