@@ -8,8 +8,7 @@
 
 The **DicePlot** package allows you to create visualizations (dice plots) for datasets with more than two categorical variables and additional continuous variables. This tool is particularly useful for exploring complex categorical data and their relationships with continuous variables.
 
-<details>
-<summary><h2>Installation</h2></summary>
+## Installation
 
 To install the **DicePlot** package, follow these steps:
 
@@ -68,10 +67,8 @@ After installation, load the `DicePlot` package into your R session:
 ```r
 library(diceplot)
 ```
-</details>
 
-<details>
-<summary><h2>Example Usage: Dice Plot</h2></summary>
+## Example Usage: Dice Plot
 
 Here is a simple example of how to use the `DicePlot v0.1.2` package.  
 For more examples, check the tests/ folder.
@@ -172,10 +169,8 @@ print(p)
 
 ### Output
 ![Example output](diceplot_example.png)
-</details>
 
-<details>
-<summary><h2>Domino Plot Tutorial</h2></summary>
+## Domino Plot Tutorial
 
 ### Introduction to Domino Plots
 
@@ -364,11 +359,9 @@ In a domino plot:
   - x-axis: Typically genes
   - y-axis: Typically cell types
   - Facets (if used): Can represent different conditions or contrasts
-</details>
 
-<details>
-<summary><h2>geom_dice_sf Tutorial</h2></summary>
 
+## geom_dice_sf Tutorial
 ### Prerequisites
 This tutorial has prerquisties which are not defaults in the diceplot package itself.
 Before proceeding, install the required R packages:
@@ -491,46 +484,35 @@ final_plot
 ```
 ### Output
 ![geom_dice_sf](saarland_geom_dice_sf.png)
-</details>
 
-<details>
-<summary><h2>Use DicePlot in Python</h2></summary>
+
+## Use DicePlot in Python
 
 For using dice plots in Python, please refer to [pyDicePlot](https://github.com/maflot/pyDicePlot/tree/main)
-</details>
 
-<details>
-<summary><h2>Documentation</h2></summary>
+## Documentation
 
 For full documentation and additional examples, please refer to the [documentation](https://dice-and-domino-plot.readthedocs.io/en/latest/index.html#)
-</details>
 
-<details>
-<summary><h2>Features</h2></summary>
+## Features
 
 - **Visualize Complex Data:** Easily create plots for datasets with multiple categorical variables.
 - **Customization:** Customize plots with titles, labels, and themes.
 - **Integration with ggplot2:** Leverages the power of `ggplot2` for advanced plotting capabilities.
-</details>
 
-<details>
-<summary><h2>Contributing</h2></summary>
+## Contributing
 
 We welcome contributions from the community! If you'd like to contribute:
 
 1. Fork the repository on GitHub.
 2. Create a new branch for your feature or bug fix.
 3. Submit a pull request with a detailed description of your changes.
-</details>
 
-<details>
-<summary><h2>Contact</h2></summary>
+## Contact
 
 If you have any questions, suggestions, or issues, please open an issue on GitHub.
-</details>
 
-<details>
-<summary><h2>Change Log v0.1.6</h2></summary>
+## Change Log v0.1.6
 
 - Update the examples to real world data
 - move example files out of test to example
@@ -542,10 +524,8 @@ If you have any questions, suggestions, or issues, please open an issue on GitHu
 ### domino_plot function
 - Add proper legend to the plot, remove intermediate plot
 - Default logfc crop to NULL
-</details>
 
-<details>
-<summary><h2>Citation</h2></summary>
+## Citation
 
 If you use this code or the R and Python packages for your own work, please cite diceplot as:
   
@@ -561,12 +541,9 @@ BibTeX entry:
     doi = {https://doi.org/10.48550/arXiv.2410.23897}
 }
 ```
-</details>
 
-<details>
-<summary><h2>References</h2></summary>
+## References
 
 [1] Flotho, M., Flotho, P., Keller, A. (2024). Diceplot: A package for high dimensional categorical data visualization. *arXiv preprint*. https://doi.org/10.48550/arXiv.2410.23897
 
 [2] Flotho, M., Amand, J., Hirsch, P., Grandke, F., Wyss-Coray, T., Keller, A., Kern, F. (2023). ZEBRA: a hierarchically integrated gene expression atlas of the murine and human brain at single-cell resolution. *Nucleic Acids Research*, 52(D1), D1089-D1096. https://doi.org/10.1093/nar/gkad990
-</details>
