@@ -80,7 +80,7 @@ main_plot <- ggplot() +
                         breaks = log(c(10, 25, 50, 100, 200)))
 
 final_plot <- plot_grid(main_plot, legend_plot, ncol = 2, rel_widths = c(4, 1))
-final_plot
+ggsave(final_plot,file = "saarland_geom_dice_sf.png",dpi = 150, width = 10, height = 8)
 
 
 
