@@ -2,23 +2,18 @@ utils::globalVariables(c("label_x", "label_y", "adj_logfc", "feature_id", "gene_
 
 #' Domino Plot Visualization with Categorical Colors
 #'
-#' This function generates a plot to visualize gene expression levels for a given list of genes. The size of the dots can be customized, and the plot can be saved to an output file if specified.
+#' This function generates a plot to visualize categorical data in a domino plot format. The size of the dots is fixed, and the plot can be saved to an output file if specified.
 #' This version supports categorical colors and allows setting colors for left and right rectangle plots.
 #'
-#' @param data A data frame containing gene expression data.
+#' @param data A data frame containing the categorical data.
 #' @param gene_list A character vector of gene names to include in the plot.
 #' @param x A string representing the column name in `data` for the feature variable (e.g., genes). Default is `"gene"`.
 #' @param y A string representing the column name in `data` for the cell type variable. Default is `"Celltype"`.
 #' @param contrast A string representing the column name in `data` for the contrast variable. Default is `"Contrast"`.
 #' @param var_id A string representing the column name in `data` for the variable identifier. Default is `"var"`.
-#' @param expression_col A string representing the column name in `data` for the expression values (previously log_fc). Default is `"avg_log2FC"`.
-#' @param significance_col A string representing the column name in `data` for the significance values (previously p_val). Default is `"p_val_adj"`.
-#' @param min_dot_size A numeric value indicating the minimum dot size in the plot. Default is `1`.
-#' @param max_dot_size A numeric value indicating the maximum dot size in the plot. Default is `5`.
 #' @param spacing_factor A numeric value indicating the spacing between gene pairs. Default is `3`.
-#' @param categorical_colors A named vector of colors to use for categorical values in expression data. Default is NULL.
-#' @param color_scale_name A string specifying the name of the color scale in the legend. Default is `"Expression Category"`.
-#' @param size_scale_name A string specifying the name of the size scale in the legend. Default is `"-log10(significance)"`.
+#' @param categorical_colors A named vector of colors to use for categorical values in the data. Default is NULL.
+#' @param color_scale_name A string specifying the name of the color scale in the legend. Default is `"Category"`.
 #' @param left_rect_color A string specifying the color for the left rectangles. Default is `"lightblue"`.
 #' @param right_rect_color A string specifying the color for the right rectangles. Default is `"lightpink"`.
 #' @param rect_alpha A numeric value between 0 and 1 indicating the transparency of the rectangles. Default is `0.5`.
@@ -45,10 +40,6 @@ utils::globalVariables(c("label_x", "label_y", "adj_logfc", "feature_id", "gene_
 #' @param feature_col Deprecated. Use `x` instead.
 #' @param celltype_col Deprecated. Use `y` instead.
 #' @param contrast_col Deprecated. Use `contrast` instead.
-#' @param logfc_col Deprecated. Use `expression_col` instead.
-#' @param pval_col Deprecated. Use `significance_col` instead.
-#' @param log_fc Deprecated. Use `expression_col` instead.
-#' @param p_val Deprecated. Use `significance_col` instead.
 #'
 #' @return A list containing the domino plot and optionally the variable positions plot.
 #' @importFrom ggplot2 ggplot aes geom_point geom_rect scale_color_manual scale_fill_manual theme_void theme element_text element_blank margin coord_fixed geom_text ggtitle
@@ -56,7 +47,7 @@ utils::globalVariables(c("label_x", "label_y", "adj_logfc", "feature_id", "gene_
 #' @importFrom stats dist hclust
 #' @importFrom utils globalVariables
 #' @importFrom rlang sym
-#' @importFrom ggplot2 ggplot aes geom_rect geom_point scale_color_manual scale_size_continuous scale_x_continuous expansion scale_y_continuous labs theme_minimal theme element_text element_line element_blank element_rect annotate coord_flip coord_cartesian ggsave
+#' @importFrom ggplot2 ggplot aes geom_rect geom_point scale_color_manual scale_x_continuous expansion scale_y_continuous labs theme_minimal theme element_text element_line element_blank element_rect annotate coord_flip coord_cartesian ggsave
 #' @importFrom dplyr select mutate filter left_join arrange desc bind_rows case_when
 #' @importFrom utils globalVariables
 #' @importFrom grDevices pdf dev.off
@@ -67,14 +58,9 @@ dice_facet_plot <- function(data,
                             y = "Celltype",
                             contrast = "Contrast",
                             var_id = "var",
-                            expression_col = "avg_log2FC",
-                            significance_col = "p_val_adj",
-                            min_dot_size = 1, 
-                            max_dot_size = 5, 
                             spacing_factor = 3,
                             categorical_colors = NULL,
-                            color_scale_name = "Expression Category",
-                            size_scale_name = "-log10(significance)",
+                            color_scale_name = "Category",
                             left_rect_color = "lightblue",
                             right_rect_color = "lightpink",
                             rect_alpha = 0.5,
@@ -98,11 +84,7 @@ dice_facet_plot <- function(data,
                             output_file = NULL,
                             feature_col = NULL,
                             celltype_col = NULL,
-                            contrast_col = NULL,
-                            logfc_col = NULL,
-                            pval_col = NULL,
-                            log_fc = NULL,
-                            p_val = NULL) {
+                            contrast_col = NULL) {
   
   # Handle deprecated parameters with warnings
   if (!is.null(feature_col)) {
@@ -121,31 +103,6 @@ dice_facet_plot <- function(data,
     warning("The argument 'contrast_col' is deprecated and will be removed in a future version >v1.5. Please use 'contrast' instead.", 
             call. = FALSE, immediate. = TRUE)
     contrast <- contrast_col
-  }
-  
-  if (!is.null(logfc_col)) {
-    warning("The argument 'logfc_col' is deprecated and will be removed in a future version >v1.5. Please use 'expression_col' instead.", 
-            call. = FALSE, immediate. = TRUE)
-    expression_col <- logfc_col
-  }
-  
-  if (!is.null(pval_col)) {
-    warning("The argument 'pval_col' is deprecated and will be removed in a future version >v1.5. Please use 'significance_col' instead.", 
-            call. = FALSE, immediate. = TRUE)
-    significance_col <- pval_col
-  }
-  
-  # Handle additional deprecated parameters for backward compatibility
-  if (!is.null(log_fc)) {
-    warning("The argument 'log_fc' is deprecated and will be removed in a future version >v1.5. Please use 'expression_col' instead.", 
-            call. = FALSE, immediate. = TRUE)
-    expression_col <- log_fc
-  }
-  
-  if (!is.null(p_val)) {
-    warning("The argument 'p_val' is deprecated and will be removed in a future version >v1.5. Please use 'significance_col' instead.", 
-            call. = FALSE, immediate. = TRUE)
-    significance_col <- p_val
   }
   
   # Set axis text sizes if NULL
@@ -188,20 +145,18 @@ dice_facet_plot <- function(data,
   if (cluster_y_axis) {
     # Create a profile matrix for each cell type with gene-contrast combinations
     celltype_profile_matrix <- data %>%
-      # Handle NAs in expression data by replacing with 0
-      mutate(!!sym(expression_col) := ifelse(is.na(!!sym(expression_col)), 0, !!sym(expression_col))) %>%
       # Create a unique identifier for each gene-contrast combination
       mutate(feature_id = paste(!!sym(x), !!sym(contrast), sep = "_")) %>%
       # Group by y value and feature_id
       group_by(!!sym(y), feature_id) %>%
-      # Calculate the mean expression value for each y-feature combination
-      summarise(mean_expr = mean(!!sym(expression_col), na.rm = TRUE), .groups = "drop") %>%
+      # Calculate the count for each y-feature combination
+      summarise(count = n(), .groups = "drop") %>%
       # Pivot to wide format with y values as rows and feature combinations as columns
       tidyr::pivot_wider(
         id_cols = !!sym(y),
         names_from = feature_id,
-        values_from = mean_expr,
-        values_fill = 0
+        values_from = count,
+        values_fill = 0L  # Use integer 0 instead of double
       )
     
     # Extract row names for y categories
@@ -250,31 +205,28 @@ dice_facet_plot <- function(data,
     # Cluster var_id based on their profiles
     cluster_data <- data %>%
       # Select the columns we need
-      select(!!sym(var_id), !!sym(y), !!sym(contrast), !!sym(x), !!sym(expression_col)) %>%
-      # Handle NAs in expression data by replacing with 0 (or another appropriate value)
-      mutate(!!sym(expression_col) := ifelse(is.na(!!sym(expression_col)), 0, !!sym(expression_col)))
-    
-    # For each var_id, create a feature vector combining all genes, celltypes, and contrasts
-    # This gives us a "profile" for each variable that we can cluster
-    cluster_matrix <- cluster_data %>%
+      select(!!sym(var_id), !!sym(y), !!sym(contrast), !!sym(x)) %>%
       # Create a unique identifier for each gene-celltype-contrast combination
       mutate(feature_id = paste(!!sym(x), !!sym(y), !!sym(contrast), sep = "_")) %>%
+      # Group by var_id and feature_id to get counts
+      group_by(!!sym(var_id), feature_id) %>%
+      summarise(count = n(), .groups = "drop") %>%
       # Pivot to wide format with var_id as rows and feature combinations as columns
       tidyr::pivot_wider(
         id_cols = !!sym(var_id),
         names_from = feature_id,
-        values_from = !!sym(expression_col),
-        values_fill = 0
+        values_from = count,
+        values_fill = 0L  # Use integer 0 instead of double
       )
     
     # Extract the matrix for clustering (everything except the var_id column)
-    if(ncol(cluster_matrix) <= 1) {
+    if(ncol(cluster_data) <= 1) {
       warning("Not enough data for clustering", call. = FALSE, immediate. = TRUE)
       return()
     }
     
-    cluster_var_ids <- cluster_matrix[[var_id]]
-    cluster_matrix_values <- as.matrix(cluster_matrix[, -1])
+    cluster_var_ids <- cluster_data[[var_id]]
+    cluster_matrix_values <- as.matrix(cluster_data[, -1])
     rownames(cluster_matrix_values) <- cluster_var_ids
     
     # Compute distance matrix
@@ -302,21 +254,17 @@ dice_facet_plot <- function(data,
   all_contrasts <- contrast_levels
   all_vars <- levels(data[[var_id]])
   
-  complete_data <- expand.grid(
-    temp_gene = gene_list,
-    temp_celltype = all_celltypes,
-    temp_contrast = all_contrasts,
-    temp_var = all_vars,
-    stringsAsFactors = FALSE
-  )
-  names(complete_data) <- c(x, y, contrast, var_id)
-  
-  data <- left_join(complete_data, data, by = c(x, y, contrast, var_id))
+  # Only work with actual data points
+  data <- data %>%
+    filter(!is.na(!!sym(var_id))) %>%  # Remove NA values
+    mutate(
+      gene_index = match(!!sym(x), gene_list),
+      celltype_numeric = as.numeric(factor(!!sym(y), levels = all_celltypes))
+    )
   
   # Create one row per (var, contrast) and define custom offsets:
   var_info <- data %>%
     distinct(!!sym(var_id), !!sym(contrast)) 
-  
   
   # Create named lists for var_positions
   var_list_left <- setNames(
@@ -370,14 +318,11 @@ dice_facet_plot <- function(data,
     ) +
     coord_fixed()
   
-  # Here we join the position information
+  # Join the position information with the actual data
   plot_data <- data %>%
     dplyr::left_join(var_positions, by = c(var_id, contrast)) %>%
     dplyr::mutate(
-      gene_index = match(!!sym(x), gene_list),
       x_pos = (gene_index - 1) * spacing_factor + x_offset,
-      # Make sure celltype_numeric is properly assigned based on the factor levels
-      celltype_numeric = as.numeric(factor(!!sym(y), levels = all_celltypes)),
       y_pos = celltype_numeric + y_offset
     )
   
@@ -389,17 +334,16 @@ dice_facet_plot <- function(data,
   
   # If categorical_colors is NULL, we need to create default colors
   if (is.null(categorical_colors)) {
-    # Get unique categories from expression_col column, excluding NA values
-    categories <- unique(na.omit(data[[expression_col]]))
+    # Get unique categories from the data
+    categories <- unique(na.omit(data[[var_id]]))
     if (length(categories) == 0) {
       # If there are no categories (all NAs), create a default category
       categories <- c("No data")
-      data[[expression_col]] <- "No data"
+      data[[var_id]] <- "No data"
       # Default color for "No data" category
       categorical_colors <- c("No data" = "grey")
     } else {
       # Create default colors using RColorBrewer or other color palette
-      # This is a simple example, you might want to use a more sophisticated approach
       default_colors <- c("red", "blue", "green", "purple", "orange", "yellow", "brown", "pink", "cyan", "magenta")
       categorical_colors <- setNames(
         default_colors[1:min(length(categories), length(default_colors))],
@@ -408,41 +352,57 @@ dice_facet_plot <- function(data,
     }
   }
   
-  # Make sure expression_col is treated as a categorical variable
-  plot_data[[expression_col]] <- as.factor(plot_data[[expression_col]])
+  # Create a complete grid for rectangles only
+  rect_data <- expand.grid(
+    gene_index = 1:length(gene_list),
+    celltype_numeric = 1:length(all_celltypes),
+    contrast = contrast_levels
+  ) %>%
+    mutate(
+      x_pos = (gene_index - 1) * spacing_factor + ifelse(contrast == contrast_levels[1], 1, 2),
+      y_pos = celltype_numeric
+    )
   
-  # Fix the rectangle drawing to properly use celltype_numeric and add custom rectangle colors
-  p <- ggplot(plot_data, aes(x = x_pos, y = y_pos)) +
+  # Create the plot with rectangles and points
+  p <- ggplot() +
+    # Add rectangles for all possible positions
     geom_rect(
+      data = rect_data,
       aes(
-        xmin = (gene_index - 1) * spacing_factor + case_when(
-          !!sym(contrast) == contrast_levels[1] ~ 1 - 0.4,
-          !!sym(contrast) == contrast_levels[2] ~ 2 - 0.4,
-          TRUE ~ 0
-        ),
-        xmax = (gene_index - 1) * spacing_factor + case_when(
-          !!sym(contrast) == contrast_levels[1] ~ 1 + 0.4,
-          !!sym(contrast) == contrast_levels[2] ~ 2 + 0.4,
-          TRUE ~ 0
-        ),
-        ymin = celltype_numeric - 0.4,  # Use the numeric value directly
-        ymax = celltype_numeric + 0.4,   # Use the numeric value directly
-        fill = case_when(
-          !!sym(contrast) == contrast_levels[1] ~ left_rect_color,
-          !!sym(contrast) == contrast_levels[2] ~ right_rect_color,
-          TRUE ~ "white"
-        )
+        xmin = x_pos - 0.4,
+        xmax = x_pos + 0.4,
+        ymin = y_pos - 0.4,
+        ymax = y_pos + 0.4,
+        fill = contrast
       ),
-      color = "darkgrey", alpha = rect_alpha, linewidth = 0.5
+      color = "darkgrey",
+      alpha = rect_alpha,
+      linewidth = 0.5
     ) +
-    geom_point(aes(color = !!sym(expression_col), size = -log10(!!sym(significance_col)))) +
-    geom_point(aes(size = -log10(!!sym(significance_col))), color = "black", shape = 1) + 
+    scale_fill_manual(
+      values = setNames(
+        c(left_rect_color, right_rect_color),
+        contrast_levels
+      )
+    ) +
+    # Add points only for actual data
+    geom_point(
+      data = plot_data,
+      aes(x = x_pos, y = y_pos, color = !!sym(var_id)),
+      size = 3
+    ) +
+    geom_point(
+      data = plot_data,
+      aes(x = x_pos, y = y_pos),
+      size = 3.5,
+      shape = 1,
+      color = "black"
+    ) +
     scale_color_manual(
       name = color_scale_name,
       values = categorical_colors,
-      na.value = "grey"  # Color for NA values
+      na.value = "grey"
     ) +
-    scale_size_continuous(name = size_scale_name, range = c(min_dot_size, max_dot_size)) +
     scale_x_continuous(
       breaks = seq(1.5, by = spacing_factor, length.out = length(gene_list)),
       labels = gene_list,
@@ -498,9 +458,6 @@ dice_facet_plot <- function(data,
       contrast = contrast,
       categorical_colors = categorical_colors,
       color_scale_name = color_scale_name,
-      size_scale_name = size_scale_name,
-      min_dot_size = min_dot_size,
-      max_dot_size = max_dot_size,
       legend_text_size = legend_text_size,
       left_rect_color = left_rect_color,
       right_rect_color = right_rect_color
