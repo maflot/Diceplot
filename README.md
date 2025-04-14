@@ -70,7 +70,107 @@ library(diceplot)
 
 ## Example Usage: Dice Plot
 
-Here is a simple example of how to use the `DicePlot v0.1.2` package.  
+Here is a real-world example using data from Huang et al. (2021) showing gene expression patterns across different immune cell types and demographic groups.  
+For more examples, check the tests/ folder.
+
+```r
+# Load necessary libraries
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(writexl)
+library(RColorBrewer)
+library(UpSetR)
+library(ggplot2)
+library(diceplot)
+
+# Set your file path
+file_path <- "data/pnas.2023216118.sd05.xlsx"
+
+# Process the data
+processed_data <- process_excel_to_csv(file_path)
+
+# Create a demographic combination column that combines age and sex
+processed_data <- processed_data %>%
+  mutate(demo_combination = case_when(
+    age == "old" & sex == "male" ~ "Old Male",
+    age == "old" & sex == "female" ~ "Old Female",
+    age == "young" & sex == "male" ~ "Young Male",
+    age == "young" & sex == "female" ~ "Young Female",
+    TRUE ~ paste(age, sex)
+  ))
+
+# Order the demographic combinations factor
+processed_data$demo_combination <- factor(
+  processed_data$demo_combination,
+  levels = c("Old Male", "Old Female", "Young Male", "Young Female")
+)
+
+# Order cell types
+processed_data$cell_type <- factor(
+  processed_data$cell_type,
+  levels = c(
+    "Natural Killer (NK) cell",
+    "T cell (TC)",
+    "B cell (BC)",
+    "Dendritic cell (DC)",
+    "Monocyte (MC)"
+  )
+)
+
+# Create summary table with gene counts
+gene_counts <- processed_data %>%
+  group_by(gene, cell_type, demo_combination) %>%
+  summarize(tmp_count = n(), .groups = "drop")
+
+# Define colors for demographic combinations
+demo_colors <- c(
+  "Old Male" = "#E41A1C",     # Red
+  "Old Female" = "#377EB8",   # Blue
+  "Young Male" = "#4DAF4A",   # Green
+  "Young Female" = "#984EA3"  # Purple
+)
+
+# Get top 25 most frequent genes
+top_25_genes <- processed_data %>%
+  count(gene) %>%
+  arrange(desc(n)) %>%
+  head(25) %>%
+  pull(gene)
+
+# Filter gene_counts to include only top 25 genes
+filtered_gene_counts <- gene_counts %>%
+  filter(gene %in% top_25_genes)
+
+# Add default group column
+filtered_gene_counts$default = ""
+
+# Create the diceplot
+p_dice_filtered <- dice_plot(
+  data = filtered_gene_counts,
+  x = "gene",                    # x-axis: genes
+  y = "cell_type",               # y-axis: cell types
+  z = "demo_combination",        # z parameter: demographic combinations
+  cluster_by_column = T,
+  cluster_by_row = F,
+  title = "Gene Expression across Cell Types and Demographics\n(Top 25 Genes)",
+  z_colors = demo_colors,        # Use the proper color palette
+  max_dot_size = 6,
+  min_dot_size = 3,
+  legend_width = 0.2,
+  legend_height = 0.25,
+  show_legend = T
+)
+
+# Display the diceplot
+print(p_dice_filtered)
+```
+
+### Output
+![PNAS Example](pnas_diceplot_example.png)
+
+Here is a simple artificial example of how to use the `DicePlot v0.1.2` package.  
 For more examples, check the tests/ folder.
 
 ```r
@@ -547,3 +647,5 @@ BibTeX entry:
 [1] Flotho, M., Flotho, P., Keller, A. (2024). Diceplot: A package for high dimensional categorical data visualization. *arXiv preprint*. https://doi.org/10.48550/arXiv.2410.23897
 
 [2] Flotho, M., Amand, J., Hirsch, P., Grandke, F., Wyss-Coray, T., Keller, A., Kern, F. (2023). ZEBRA: a hierarchically integrated gene expression atlas of the murine and human brain at single-cell resolution. *Nucleic Acids Research*, 52(D1), D1089-D1096. https://doi.org/10.1093/nar/gkad990
+
+[3] Huang, Z., Chen, B., Liu, X., Li, H., Xie, L., Gao, Y., Duan, R., Li, Z., Zhang, J., Zheng, Y., et al. (2021). Effects of sex and aging on the immune cell landscape as assessed by single-cell transcriptomic analysis. *Proceedings of the National Academy of Sciences*, 118(33), e2023216118. https://doi.org/10.1073/pnas.2023216118
