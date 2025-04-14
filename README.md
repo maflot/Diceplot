@@ -71,7 +71,7 @@ library(diceplot)
 ## Example Usage: Dice Plot
 
 Here is a real-world example using data from Huang et al. (2021) showing gene expression patterns across different immune cell types and demographic groups.  
-For more examples, check the tests/ folder.
+For more examples, check the example/ folder.
 
 ```r
 # Load necessary libraries
@@ -88,6 +88,106 @@ library(diceplot)
 # Set your file path
 file_path <- "data/pnas.2023216118.sd05.xlsx"
 
+# Function to create the properly formatted CSV as the data comes in a rather hard to use format for this task
+process_excel_to_csv <- function(file_path) {
+  # Read Excel file with detailed options to ensure proper data reading
+  raw_data <- read_excel(file_path, col_names = FALSE, na = "", trim_ws = TRUE)
+  
+  # Extract cell types from row 2
+  cell_types_row <- raw_data[2,]
+  
+  # Extract demographic info from row 3
+  demo_row <- raw_data[3,]
+  
+  # Create a list to store all transformed data
+  all_data <- list()
+  
+  # Define cell type mapping
+  cell_type_map <- c(
+    "NK" = "Natural Killer (NK) cell",
+    "TC" = "T cell (TC)",
+    "BC" = "B cell (BC)",
+    "DC" = "Dendritic cell (DC)",
+    "MC" = "Monocyte (MC)"
+  )
+  
+  # Special handling for the staggered format
+  # First find the cell type columns
+  cell_type_columns <- c()
+  for (i in 1:ncol(raw_data)) {
+    if (!is.na(cell_types_row[[i]]) && cell_types_row[[i]] != "") {
+      cell_type_columns <- c(cell_type_columns, i)
+    }
+  }
+  
+  # Print debug information
+  print(paste("Found cell type columns:", paste(cell_type_columns, collapse = ", ")))
+  
+  # Process each cell type column and its associated demographic columns
+  for (col_idx in cell_type_columns) {
+    cell_type <- cell_types_row[[col_idx]]
+    cell_type_full <- cell_type_map[cell_type]
+    
+    # Look at the next 4 columns (OM, OF, YM, YF)
+    for (offset in 0:3) {
+      demo_col <- col_idx + offset
+      
+      # Check if this column exists and has a valid demographic
+      if (demo_col <= ncol(raw_data) && !is.na(demo_row[[demo_col]]) && demo_row[[demo_col]] != "") {
+        demo_info <- demo_row[[demo_col]]
+        
+        # Print debug info
+        print(paste("Processing column", demo_col, "- Cell type:", cell_type, "- Demo info:", demo_info))
+        
+        # Extract demographic information
+        age <- case_when(
+          substr(demo_info, 4, 4) == "O" ~ "old",
+          substr(demo_info, 4, 4) == "Y" ~ "young",
+          TRUE ~ NA_character_
+        )
+        
+        sex <- case_when(
+          substr(demo_info, 5, 5) == "M" ~ "male",
+          substr(demo_info, 5, 5) == "F" ~ "female",
+          TRUE ~ NA_character_
+        )
+        
+        # Print the parsed demographic info for debugging
+        print(paste("  Demographic parsed as:", age, sex))
+        
+        # Process each gene in this column
+        gene_count <- 0
+        for (row_idx in 4:nrow(raw_data)) {
+          gene <- raw_data[row_idx, demo_col][[1]]
+          
+          # Skip empty genes
+          if (is.na(gene) || gene == "") {
+            next
+          }
+          
+          gene_count <- gene_count + 1
+          
+          # Create a row for this gene
+          gene_row <- data.frame(
+            id = paste0(cell_type, "_", demo_info, "_", gene),
+            gene = gene,
+            cell_type_code = cell_type,
+            cell_type = cell_type_full,
+            age_code = substr(demo_info, 4, 4),
+            age = age,
+            sex_code = substr(demo_info, 5, 5),
+            sex = sex,
+            demo_code = demo_info
+          )
+          
+          # Add to our list
+          all_data[[length(all_data) + 1]] <- gene_row
+        }
+        
+        print(paste("  Processed", gene_count, "genes in this column"))
+      }
+    }
+  }
 # Process the data
 processed_data <- process_excel_to_csv(file_path)
 
