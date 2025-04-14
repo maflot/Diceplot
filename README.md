@@ -512,7 +512,7 @@ We welcome contributions from the community! If you'd like to contribute:
 
 If you have any questions, suggestions, or issues, please open an issue on GitHub.
 
-## Change Log v0.1.6
+## Change Log v0.1.7
 
 - Update the examples to real world data
 - move example files out of test to example

@@ -678,6 +678,198 @@ create_custom_domino_legends <- function(contrast_levels,
   return(combined_legend_plot)
 }
 
+#' Create custom legends for categorical domino plot
+#'
+#' @param contrast_levels A character vector of contrast level names.
+#' @param var_positions A data frame containing variable positions.
+#' @param var_id A string representing the column name for the variable identifier.
+#' @param contrast A string representing the column name for the contrast variable.
+#' @param categorical_colors A named vector specifying the colors for each category.
+#' @param color_scale_name A string specifying the name of the color scale in the legend.
+#' @param legend_text_size A numeric value indicating the text size for the legend.
+#' @param left_rect_color A string specifying the color for the left rectangles.
+#' @param right_rect_color A string specifying the color for the right rectangles.
+#'
+#' @return A ggplot object containing custom legends.
+#' @importFrom ggplot2 ggplot geom_point geom_rect geom_text theme_void theme element_text element_rect margin coord_fixed ggtitle
+#' @importFrom cowplot plot_grid
+#' @keywords internal
+create_custom_domino_legends_categorical <- function(contrast_levels,
+                                                   var_positions,
+                                                   var_id,
+                                                   contrast,
+                                                   categorical_colors,
+                                                   color_scale_name,
+                                                   legend_text_size = 8,
+                                                   left_rect_color = "lightblue",
+                                                   right_rect_color = "lightpink") {
+  # Get unique variables from the left contrast only (assuming both sides have same variables)
+  vars_to_show <- unique(var_positions[var_positions[[contrast]] == contrast_levels[1], var_id])
+  
+  # Filter var_positions to include only the first contrast
+  legend_vars <- var_positions[var_positions[[contrast]] == contrast_levels[1],]
+  
+  # Create a simplified legend data frame for the positions
+  var_legend_data <- data.frame(
+    var = legend_vars[[var_id]],
+    x = legend_vars$x_offset,
+    y = legend_vars$y_offset
+  )
+  
+  # Create the position legend plot
+  vars_legend_plot <- ggplot() +
+    # Add dots showing variable positions
+    geom_point(
+      data = var_legend_data,
+      aes(x = x, y = y, color = var),
+      size = 3
+    ) +
+    geom_point(
+      data = var_legend_data,
+      aes(x = x, y = y),
+      size = 3.5,
+      shape = 1,
+      color = "black"
+    ) +
+    # Add variable labels
+    geom_text(
+      data = var_legend_data,
+      aes(
+        x = ifelse(x > 0, x + 0.15, 
+                   ifelse(x < 0, x - 0.15, 
+                          ifelse(x == 0, 0, x))),
+        y = ifelse(y > 0, y + 0.15,
+                   ifelse(y < 0, y - 0.15, 
+                          ifelse(y == 0 & x == 0, 0.15, y))),
+        label = var,
+        hjust = ifelse(x < 0, 1,
+                       ifelse(x > 0, 0, 0.5)),
+        vjust = ifelse(y > 0, 0,
+                       ifelse(y < 0, 1, 
+                              ifelse(y == 0 & x == 0, 0, 0.5)))
+      ),
+      size = legend_text_size/3
+    ) +
+    scale_color_manual(values = categorical_colors) +
+    theme_void() +
+    theme(
+      plot.margin = margin(10, 20, 10, 20),
+      plot.background = element_rect(fill = "white", color = NA),
+      plot.title = element_text(hjust = 0.5, size = legend_text_size*1.5, face = "bold", margin = margin(0, 0, 10, 0)),
+      legend.position = "none"
+    ) +
+    coord_fixed(
+      ratio = 1,
+      xlim = c(-0.75, 0.75),
+      ylim = c(-0.5, 0.5),
+      expand = FALSE,
+      clip = "off"
+    ) +
+    ggtitle("Domino Layout")
+  
+  # Create the contrast legend plot
+  contrast_legend_data <- data.frame(
+    contrast = factor(contrast_levels, levels = contrast_levels),
+    x = c(0.5, 1.5),
+    y = c(1, 1)
+  )
+  
+  contrast_legend_plot <- ggplot() +
+    geom_rect(
+      data = contrast_legend_data,
+      aes(
+        xmin = x - 0.4,
+        xmax = x + 0.4,
+        ymin = y - 0.4,
+        ymax = y + 0.4,
+        fill = contrast
+      ),
+      color = "darkgrey",
+      alpha = 0.5,
+      linewidth = 0.5
+    ) +
+    geom_text(
+      data = contrast_legend_data,
+      aes(x = x, y = y + 0.6, label = contrast),
+      size = legend_text_size/2.3,
+      hjust = 0.5
+    ) +
+    scale_fill_manual(
+      values = setNames(c(left_rect_color, right_rect_color), contrast_levels)
+    ) +
+    theme_void() +
+    theme(
+      plot.margin = margin(10, 20, 10, 20),
+      plot.background = element_rect(fill = "white", color = NA),
+      plot.title = element_text(hjust = 0.5, size = legend_text_size*1.375, face = "bold", margin = margin(0, 0, 10, 0)),
+      legend.position = "none"
+    ) +
+    coord_fixed(
+      ratio = 1,
+      xlim = c(0, 2),
+      ylim = c(0.5, 1.5),
+      expand = FALSE,
+      clip = "off"
+    ) +
+    ggtitle("Contrast Groups")
+  
+  # Create the color legend plot
+  color_legend_data <- data.frame(
+    category = factor(names(categorical_colors), levels = names(categorical_colors)),
+    x = 1,
+    y = seq(length(categorical_colors), 1)
+  )
+  
+  color_legend_plot <- ggplot() +
+    geom_point(
+      data = color_legend_data,
+      aes(x = x, y = y, color = category),
+      size = 3
+    ) +
+    geom_point(
+      data = color_legend_data,
+      aes(x = x, y = y),
+      size = 3.5,
+      shape = 1,
+      color = "black"
+    ) +
+    geom_text(
+      data = color_legend_data,
+      aes(x = x + 0.3, y = y, label = category),
+      size = legend_text_size/2.3,
+      hjust = 0
+    ) +
+    scale_color_manual(values = categorical_colors) +
+    theme_void() +
+    theme(
+      plot.margin = margin(10, 20, 10, 20),
+      plot.background = element_rect(fill = "white", color = NA),
+      plot.title = element_text(hjust = 0.5, size = legend_text_size*1.375, face = "bold", margin = margin(0, 0, 10, 0)),
+      legend.position = "none"
+    ) +
+    coord_fixed(
+      ratio = 1,
+      xlim = c(0.8, 2.2),
+      ylim = c(0.5, length(categorical_colors) + 0.5),
+      expand = FALSE,
+      clip = "off"
+    ) +
+    ggtitle(color_scale_name)
+  
+  # Combine all legend plots
+  combined_legend_plot <- cowplot::plot_grid(
+    vars_legend_plot,
+    contrast_legend_plot,
+    color_legend_plot,
+    ncol = 1,
+    align = 'v',
+    axis = 'lr',
+    rel_heights = c(2, 1, 1.5)
+  )
+  
+  return(combined_legend_plot)
+}
+
 
 
 #' Plot Dice Representations on sf Objects
@@ -864,3 +1056,192 @@ geom_dice_sf <- function(sf_data,
   # Return both layers
   list(rect_layer, dots_layer)
 }
+
+
+#' Plot Dice Representations on sf Objects
+#'
+#' @description
+#' Creates a ggplot2 layer that places dice representations on spatial features
+#' in an sf object. The dice values are determined by a column in the sf object.
+#'
+#' @param sf_data An sf object containing the spatial features.
+#' @param dice_value_col Character. Name of the column in sf_data containing dice values (1-6).
+#'   Default is "dice".
+#' @param face_color Character vector. Column names in sf_data containing color information
+#'   for each dice dot. If NULL (default), all dots are black.
+#' @param dice_color Character. Background color of the dice. Default is "white".
+#' @param dice_size Numeric. Size of the dice. Default is 3.
+#' @param dot_size Numeric. Size of the dots on the dice. If NULL (default), 
+#'   it's calculated as 20% of dice_size.
+#' @param rectangle_padding Numeric. Padding of the rectangle around the dots, as a 
+#'   proportion of dice_size. Default is 0.05.
+#' @param ... Additional arguments passed to geom_point for the dots.
+#'
+#' @return A list of ggplot2 layers (rectangle layer and dots layer).
+#'
+#' @examples
+#' \dontrun{
+#' library(ggplot2)
+#' library(sf)
+#' 
+#' # Create sample sf data with dice values
+#' nc <- st_read(system.file("shape/nc.shp", package = "sf"))
+#' nc$dice <- sample(1:6, nrow(nc), replace = TRUE)
+#' 
+#' # Basic plot with dice
+#' ggplot(nc) + 
+#'   geom_sf() + 
+#'   geom_dice_sf(sf_data = nc)
+#'   
+#' # Customized dice
+#' ggplot(nc) + 
+#'   geom_sf() + 
+#'   geom_dice_sf(sf_data = nc, dice_color = "lightblue", dice_size = 5)
+#' }
+#'
+#' @importFrom sf st_centroid st_coordinates
+#' @importFrom dplyr %>% group_by summarise
+#' @importFrom ggplot2 geom_rect geom_point aes
+#' @export
+geom_dice_sf <- function(sf_data,
+                         dice_value_col = "dice",
+                         face_color = NULL,
+                         dice_color = "white",
+                         dice_size = 3,
+                         dot_size = NULL,
+                         rectangle_padding = 0.05,
+                         ...) {
+  # Input validation
+  if (!inherits(sf_data, "sf")) {
+    stop("sf_data must be an sf object.", call. = FALSE)
+  }
+  
+  if (!dice_value_col %in% names(sf_data)) {
+    stop(sprintf("Column '%s' not found in sf_data.", dice_value_col), call. = FALSE)
+  }
+  
+  if (!is.null(face_color)) {
+    missing_cols <- face_color[!face_color %in% names(sf_data)]
+    if (length(missing_cols) > 0) {
+      stop(sprintf("Color column(s) not found in sf_data: %s",
+                   paste(missing_cols, collapse = ", ")), 
+           call. = FALSE)
+    }
+  }
+  
+  if (!is.numeric(dice_size) || dice_size <= 0) {
+    stop("dice_size must be a positive number.", call. = FALSE)
+  }
+  
+  if (!is.null(dot_size) && (!is.numeric(dot_size) || dot_size <= 0)) {
+    stop("dot_size must be a positive number or NULL.", call. = FALSE)
+  }
+  
+  if (!is.numeric(rectangle_padding) || rectangle_padding < 0) {
+    stop("rectangle_padding must be a non-negative number.", call. = FALSE)
+  }
+  
+  # Calculate centroids of spatial features
+  centroids <- sf::st_centroid(sf_data)
+  coords <- sf::st_coordinates(centroids)
+  sf_data$centroid_x <- coords[, "X"]
+  sf_data$centroid_y <- coords[, "Y"]
+  
+  # Set scaling parameters
+  dot_scale <- if (!is.null(dot_size)) dot_size else dice_size * 0.2
+  position_scale <- dice_size * 0.1
+  
+  # Generate dice dots for each feature
+  dice_dots <- do.call(rbind, lapply(seq_len(nrow(sf_data)), function(i) {
+    row <- sf_data[i, ]
+    n_dots <- as.numeric(as.character(row[[dice_value_col]]))
+    
+    # Handle custom colors for dots
+    if (!is.null(face_color)) {
+      if (is.na(n_dots) || n_dots < 1 || n_dots > length(face_color)) {
+        warning(sprintf("Dice value %s must be between 1 and %d. Skipping feature %d.",
+                        ifelse(is.na(n_dots), "NA", as.character(n_dots)),
+                        length(face_color), i),
+                call. = FALSE)
+        return(NULL)
+      }
+      palette <- sapply(face_color[seq_len(n_dots)], function(col) row[[col]])
+      dot_colors <- palette
+    } else {
+      if (is.na(n_dots) || n_dots < 1 || n_dots > 6) {
+        warning(sprintf("Dice value %s must be between 1 and 6. Skipping feature %d.",
+                        ifelse(is.na(n_dots), "NA", as.character(n_dots)), i),
+                call. = FALSE)
+        return(NULL)
+      }
+      palette <- rep("black", n_dots)
+      dot_colors <- palette
+    }
+    
+    # Create positions for dots based on dice value
+    positions <- create_var_positions(palette, n_dots)
+    positions$x_offset <- positions$x_offset * position_scale
+    positions$y_offset <- positions$y_offset * position_scale
+    
+    # Center the dots
+    center_x <- mean(positions$x_offset)
+    center_y <- mean(positions$y_offset)
+    positions$x_offset <- positions$x_offset - center_x
+    positions$y_offset <- positions$y_offset - center_y
+    
+    # Calculate final positions
+    positions$x <- row$centroid_x + positions$x_offset
+    positions$y <- row$centroid_y + positions$y_offset
+    positions$feature_id <- i
+    positions$dot_color <- dot_colors
+    
+    positions
+  }))
+  
+  # If no valid dice dots were created, return empty layers
+  if (is.null(dice_dots) || nrow(dice_dots) == 0) {
+    warning("No valid dice representations could be created.", call. = FALSE)
+    return(list(
+      ggplot2::geom_blank(),
+      ggplot2::geom_blank()
+    ))
+  }
+  
+  # Convert to data frame
+  dice_dots <- as.data.frame(dice_dots)
+  
+  # Create rectangles for each dice
+  rect_padding <- dice_size * rectangle_padding
+  group_rects <- dice_dots %>%
+    dplyr::group_by(feature_id) %>%
+    dplyr::summarise(
+      x_min = min(x) - rect_padding,
+      x_max = max(x) + rect_padding,
+      y_min = min(y) - rect_padding,
+      y_max = max(y) + rect_padding,
+      .groups = "drop"
+    )
+  
+  # Create the rectangle layer
+  rect_layer <- ggplot2::geom_rect(
+    data = group_rects,
+    mapping = ggplot2::aes(xmin = x_min, xmax = x_max, ymin = y_min, ymax = y_max),
+    fill = dice_color,
+    color = "black",
+    inherit.aes = FALSE
+  )
+  
+  # Create the dots layer
+  dots_layer <- ggplot2::geom_point(
+    data = dice_dots,
+    mapping = ggplot2::aes(x = x, y = y, color = dot_color),
+    size = dot_scale,
+    ...
+  )
+  
+  # Return both layers
+  list(rect_layer, dots_layer)
+}
+
+
+
