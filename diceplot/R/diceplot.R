@@ -231,6 +231,8 @@ dice_plot <- function(data,
   var_positions <- create_var_positions(z_colors, num_vars)
   
   if(cluster_by_row){
+    print("cluster by row")
+    print(data)
     y_order <- order_cat_b(data, group, y, group_colors, reverse_ordering)
   } else {
     y_order <- levels(data[[y]])
@@ -243,19 +245,30 @@ dice_plot <- function(data,
   }
   
   plot_data <- prepare_plot_data(data, x, y, z, group, var_positions, x_order, y_order)
+  
+  # Always create box_data, but in different ways depending on group
   if (!is.null(group)) {
     box_data <- prepare_box_data(data, x, y, group, x_order, y_order)
+  } else {
+    box_data <- prepare_simple_box_data(data, x, y, x_order, y_order)
   }
   
   dot_size <- calculate_dot_size(num_vars, max_dot_size, min_dot_size)
   
   p <- ggplot()
   
+  # Add rectangles with or without group fill
   if (!is.null(group)) {
     p <- p +
       geom_rect(data = box_data, 
                 aes(xmin = x_min, xmax = x_max, ymin = y_min, ymax = y_max, fill = !!sym(group)),
                 color = "grey", alpha = group_alpha, linewidth = 0.5)
+  } else {
+    # When group is NULL, use white boxes
+    p <- p +
+      geom_rect(data = box_data, 
+                aes(xmin = x_min, xmax = x_max, ymin = y_min, ymax = y_max),
+                fill = "white", color = "grey", alpha = group_alpha, linewidth = 0.5)
   }
   
   # Add points for z
@@ -300,7 +313,7 @@ dice_plot <- function(data,
   }
   
   # Create custom legends only if group is provided and show legend is true
-  if (!is.null(group) && show_legend) {
+  if (show_legend) {
     combined_legend_plot <- create_custom_legends(
       data, z, group, z_colors, group_colors, var_positions, num_vars, dot_size
     )

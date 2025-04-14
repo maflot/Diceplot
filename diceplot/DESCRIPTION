@@ -26,4 +26,5 @@ Imports:
     stats,
     rlang,
     RColorBrewer,
-    sf
+    sf,
+    ggrepel

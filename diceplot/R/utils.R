@@ -124,13 +124,25 @@ perform_clustering <- function(data, cat_a, cat_b, cat_c) {
 #' @importFrom rlang sym
 #' @export
 order_cat_b <- function(data, group, cat_b, group_colors, reverse_order = FALSE) {
-  cat_b_order <- data %>%
-    mutate(!!sym(group) := factor(!!sym(group), levels = rev(names(group_colors)))) %>%  # Reverse to match legacy code
-    group_by(!!sym(group), !!sym(cat_b)) %>%
-    summarise(count = n(), .groups = "drop") %>%
-    arrange(!!sym(group), desc(count), !!sym(cat_b)) %>%
-    pull(!!sym(cat_b)) %>%
-    unique()
+  if (is.null(group)) {
+    # If group is NULL, order by count only
+    cat_b_order <- data %>%
+      group_by(!!sym(cat_b)) %>%
+      summarise(count = n(), .groups = "drop") %>%
+      arrange(desc(count), !!sym(cat_b)) %>%
+      pull(!!sym(cat_b)) %>%
+      unique()
+  } else {
+    # Original logic using group
+    cat_b_order <- data %>%
+      mutate(!!sym(group) := factor(!!sym(group), levels = rev(names(group_colors)))) %>%
+      group_by(!!sym(group), !!sym(cat_b)) %>%
+      summarise(count = n(), .groups = "drop") %>%
+      arrange(!!sym(group), desc(count), !!sym(cat_b)) %>%
+      pull(!!sym(cat_b)) %>%
+      unique()
+  }
+  
   if (reverse_order) {
     cat_b_order <- rev(cat_b_order)
   }
@@ -181,8 +193,17 @@ prepare_plot_data <- function(data, cat_a, cat_b, cat_c, group, var_positions, c
       !!sym(cat_b) := factor(!!sym(cat_b), levels = cat_b_order),
       x_pos = as.numeric(!!sym(cat_a)) + x_offset,
       y_pos = as.numeric(!!sym(cat_b)) + y_offset
-    ) %>%
-    arrange(!!sym(cat_a), !!sym(group), !!sym(cat_b))
+    )
+  
+  # Arrange differently based on whether group is NULL
+  if (!is.null(group)) {
+    plot_data <- plot_data %>%
+      arrange(!!sym(cat_a), !!sym(group), !!sym(cat_b))
+  } else {
+    plot_data <- plot_data %>%
+      arrange(!!sym(cat_a), !!sym(cat_b))
+  }
+  
   return(plot_data)
 }
 
@@ -218,6 +239,11 @@ prepare_plot_data <- function(data, cat_a, cat_b, cat_c, group, var_positions, c
 #' @importFrom rlang sym
 #' @export
 prepare_box_data <- function(data, cat_a, cat_b, group, cat_a_order, cat_b_order) {
+  # This function should only be called when group is not NULL, but adding a check for safety
+  if (is.null(group)) {
+    stop("prepare_box_data function cannot be called with group = NULL")
+  }
+  
   box_data <- data %>%
     mutate(
       !!sym(cat_a) := factor(!!sym(cat_a), levels = cat_a_order),
@@ -231,6 +257,37 @@ prepare_box_data <- function(data, cat_a, cat_b, group, cat_a_order, cat_b_order
       y_max = as.numeric(!!sym(cat_b)) + 0.4
     ) %>%
     arrange(!!sym(cat_a), !!sym(group), !!sym(cat_b))
+  
+  return(box_data)
+}
+
+#' @title Prepare Simple Box Data (no grouping)
+#' @description
+#' Prepares data for plotting boxes without grouping by calculating box boundaries based on category positions.
+#' @param data A data frame containing the variables.
+#' @param cat_a The name of the column representing category A.
+#' @param cat_b The name of the column representing category B.
+#' @param cat_a_order A vector specifying the order of category A.
+#' @param cat_b_order A vector specifying the order of category B.
+#' @return A data frame with box boundaries for plotting.
+#' @importFrom dplyr %>% mutate distinct arrange
+#' @importFrom rlang sym
+#' @export
+prepare_simple_box_data <- function(data, cat_a, cat_b, cat_a_order, cat_b_order) {
+  box_data <- data %>%
+    mutate(
+      !!sym(cat_a) := factor(!!sym(cat_a), levels = cat_a_order),
+      !!sym(cat_b) := factor(!!sym(cat_b), levels = cat_b_order)
+    ) %>%
+    distinct(!!sym(cat_a), !!sym(cat_b)) %>%
+    mutate(
+      x_min = as.numeric(!!sym(cat_a)) - 0.4,
+      x_max = as.numeric(!!sym(cat_a)) + 0.4,
+      y_min = as.numeric(!!sym(cat_b)) - 0.4,
+      y_max = as.numeric(!!sym(cat_b)) + 0.4
+    ) %>%
+    arrange(!!sym(cat_a), !!sym(cat_b))
+  
   return(box_data)
 }
 
@@ -270,7 +327,8 @@ calculate_dot_size <- function(num_vars, max_size, min_size) {
 #' @importFrom cowplot plot_grid
 #' @importFrom stats dist hclust
 #' @importFrom utils globalVariables
-#' @importFrom rlang sym
+#' @importFrom rlang sym 
+#' @importFrom ggrepel geom_text_repel
 #' @export
 create_custom_legends <- function(data, cat_c, group, cat_c_colors, group_colors, var_positions, num_vars, dot_size) {
   # Create legend_data using var_positions
@@ -280,101 +338,102 @@ create_custom_legends <- function(data, cat_c, group, cat_c_colors, group_colors
       y = y_offset + 1
     )
   
-  # Adjust label positions using legend_data
-  label_offsets <- legend_data %>%
-    mutate(
-      label_x = x + ifelse(x_offset == 0, 0.25, x_offset * 1.5),  # Adjust multiplier as needed
-      label_y = y  # You can adjust y position if needed
-    )
-  
-  # Create the custom legend plot for cat_c
   custom_legend_plot <- ggplot() +
     geom_point(data = legend_data, aes(x = x, y = y, color = var), size = dot_size) +
     geom_point(data = legend_data, aes(x = x, y = y), size = dot_size + 0.5, shape = 1, color = "black") +
+    # Replace geom_text with geom_text_repel
+    geom_text_repel(
+      data = legend_data,
+      aes(x = x, y = y, label = var),
+      size = 3.5,
+      segment.size = 0.2,
+      box.padding = 0.5,
+      point.padding = 0.3,
+      force = 1,
+      max.overlaps = Inf
+    ) +
     scale_color_manual(values = cat_c_colors, name = cat_c) +
     theme_void() +
+    ggtitle("Dice arrangement")+
     theme(
       legend.position = "none", 
       plot.margin = margin(5, 5, 5, 5),
-      aspect.ratio = 1  # Enforce square aspect ratio
-    ) +
-    coord_fixed(ratio = 1, xlim = c(0.5, 2.5), ylim = c(0.5, 1.5), expand = FALSE) +
-    geom_text(data = label_offsets, 
-              aes(x = label_x, y = label_y, label = var),
-              size = 3, 
-              color = "black",
-              hjust = 0,
-              vjust = 0.5) +
-    ggtitle("Dice arrangement")
-  
-  
-  # Compute coordinate ranges
-  ylim_min <- 0.5
-  ylim_max <- length(group_colors) + 0.5
-  ylim_range <- ylim_max - ylim_min
-  
-  xlim_min <- 0.5
-  xlim_max <- 1.5  # Keep x-axis narrow to help maintain aspect ratio
-  xlim_range <- xlim_max - xlim_min
-  
-  # Compute aspect ratio
-  aspect_ratio <- ylim_range / xlim_range
-  
-  # Create legend data for group
-  legend_data_group <- data.frame(
-    group = factor(names(group_colors), levels = names(group_colors)),
-    x = 1,
-    y = seq(length(group_colors), 1)
-  )
-  
-  # Create the custom legend plot for group
-  group_legend_plot <- ggplot() +
-    geom_rect(
-      data = legend_data_group,
-      aes(
-        xmin = x - 0.3,
-        xmax = x + 0.3,
-        ymin = y - 0.3,
-        ymax = y + 0.3,
-        fill = group
-      ),
-      color = "grey",
-      alpha = 0.6,
-      linewidth = 0.5
-    ) +
-    scale_fill_manual(values = group_colors, name = group) +
-    theme_void() +
-    theme(
-      legend.position = "none",
-      plot.margin = margin(5, 50, 5, 5),  # Increase right margin for labels
-      aspect.ratio = aspect_ratio  # Set computed aspect ratio
-    ) +
-    coord_fixed(
-      ratio = 1,  # Keep units equal on x and y axes
-      xlim = c(xlim_min, xlim_max),
-      ylim = c(ylim_min, ylim_max),
-      expand = FALSE,
-      clip = "off"  # Allow labels to be drawn outside the plotting area
-    ) +
-    geom_text(
-      data = legend_data_group,
-      aes(x = x + 0.4, y = y, label = group),
-      size = 3,
-      color = "black",
-      hjust = 0
+      aspect.ratio = 1
     )
-  # Combine the legend plots vertically
-  combined_legend_plot <- cowplot::plot_grid(
-    custom_legend_plot, 
-    group_legend_plot, 
-    ncol = 1, 
-    align = 'v', 
-    rel_heights = c(2, 1)
-  )
   
-  return(combined_legend_plot)
+  
+ 
+  # Create the custom legend plot for group
+  if (!is.null(group)){
+    # Compute coordinate ranges
+    ylim_min <- 0.5
+    ylim_max <- length(group_colors) + 0.5
+    ylim_range <- ylim_max - ylim_min
+    
+    xlim_min <- 0.5
+    xlim_max <- 1.5  # Keep x-axis narrow to help maintain aspect ratio
+    xlim_range <- xlim_max - xlim_min
+    
+    # Compute aspect ratio
+    aspect_ratio <- ylim_range / xlim_range
+    
+    # Create legend data for group
+    legend_data_group <- data.frame(
+      group = factor(names(group_colors), levels = names(group_colors)),
+      x = 1,
+      y = seq(length(group_colors), 1)
+    )
+    
+    group_legend_plot <- ggplot() +
+      geom_rect(
+        data = legend_data_group,
+        aes(
+          xmin = x - 0.3,
+          xmax = x + 0.3,
+          ymin = y - 0.3,
+          ymax = y + 0.3,
+          fill = group
+        ),
+        color = "grey",
+        alpha = 0.6,
+        linewidth = 0.5
+      ) +
+      scale_fill_manual(values = group_colors, name = group) +
+      theme_void() +
+      theme(
+        legend.position = "none",
+        plot.margin = margin(5, 50, 5, 5),  # Increase right margin for labels
+        aspect.ratio = aspect_ratio  # Set computed aspect ratio
+      ) +
+      coord_fixed(
+        ratio = 1,  # Keep units equal on x and y axes
+        xlim = c(xlim_min, xlim_max),
+        ylim = c(ylim_min, ylim_max),
+        expand = FALSE,
+        clip = "off"  # Allow labels to be drawn outside the plotting area
+      ) +
+      geom_text(
+        data = legend_data_group,
+        aes(x = x + 0.4, y = y, label = group),
+        size = 3,
+        color = "black",
+        hjust = 0
+      )
+    combined_legend_plot <- cowplot::plot_grid(
+      custom_legend_plot, 
+      group_legend_plot, 
+      ncol = 1, 
+      align = 'v', 
+      rel_heights = c(2, 1)
+    )
+    
+    return(combined_legend_plot)
+  }
+  # Combine the legend plots vertically
+  print(custom_legend_plot)
+  return(custom_legend_plot)
+  
 }
-
 
 
 

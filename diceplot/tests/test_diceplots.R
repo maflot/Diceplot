@@ -42,7 +42,7 @@ create_and_plot_dice <- function(pathology_variables, cat_c_colors, title, cell_
   # Create dummy data
   set.seed(123)
   data <- expand.grid(CellType = cell_types, Pathway = pathways, stringsAsFactors = FALSE)
-
+  
   data <- data %>%
     rowwise() %>%
     mutate(
@@ -66,7 +66,7 @@ create_and_plot_dice <- function(pathology_variables, cat_c_colors, title, cell_
             custom_theme = theme_minimal(),
             min_dot_size = min_dot_size,
             max_dot_size = max_dot_size
-            )
+  )
 }
 
 
@@ -148,4 +148,3 @@ create_and_plot_dice(
   min_dot_size = 1,
   max_dot_size = 3
 )
-
