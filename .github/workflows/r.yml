@@ -32,7 +32,7 @@ jobs:
       - name: Install dependencies
         working-directory: DicePlot
         run: |
-          install.packages(c("remotes", "rcmdcheck"))
+          install.packages(c("remotes", "rcmdcheck","sf"))
           remotes::install_deps(dependencies = TRUE)
         shell: Rscript {0}
 
