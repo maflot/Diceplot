@@ -15,7 +15,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        r-version: ['4.1.1','release']
+        r-version: ['release'] # decided to just test on latest version as sf has some dependency issues in 4.1.1 and is only used in dice_sf which is not main scope of the package
 
     steps:
       - uses: actions/checkout@v4
