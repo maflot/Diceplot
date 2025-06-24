@@ -49,3 +49,23 @@ p <- domino_plot(
   logfc_limits = c(min(zebra.df$logFC)-2, max(zebra.df$logFC)-2),
 )
 print(p$domino_plot)
+
+p <- domino_plot(
+  data = zebra.df,
+  gene_list = genes,
+  var_id = "contrast",
+  x = "gene",
+  min_dot_size = 0.1,
+  max_dot_size = 2,
+  legend_text_size = 12,
+  x_axis_text_size = 12,
+  y_axis_text_size = 12,
+  y = "cell_type",
+  contrast = "sex",
+  log_fc = "logFC",
+  size_scale_name = "Other scale name",
+  color_scale_name = "Other color name",
+  p_val = "FDR",
+  logfc_limits = c(min(zebra.df$logFC)-2, max(zebra.df$logFC)-2),
+)
+print(p)

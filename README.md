@@ -712,6 +712,13 @@ We welcome contributions from the community! If you'd like to contribute:
 
 If you have any questions, suggestions, or issues, please open an issue on GitHub.
 
+## Change Log v0.2.0
+- update citation
+### Domino plot
+- fix sizing issue and legend
+- fix labelling bug in the custom legend
+- add label formatter argument
+
 ## Change Log v0.1.7
 
 - Update the examples to real world data

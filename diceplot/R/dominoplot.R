@@ -17,6 +17,7 @@ utils::globalVariables(c("label_x", "label_y", "adj_logfc", "feature_id", "gene_
 #' @param spacing_factor A numeric value indicating the spacing between gene pairs. Default is `3`.
 #' @param logfc_colors A named vector specifying the colors for the low, mid, and high values in the color scale. Default is `c(low = "blue", mid = "white", high = "red")`.
 #' @param color_scale_name A string specifying the name of the color scale in the legend. Default is `"Log2 Fold Change"`.
+#' @param p_label_formatter A function used to format the size legend labels (typically for p-values). Default is `function(lp) sprintf("%.2g", 10^-lp)`.
 #' @param size_scale_name A string specifying the name of the size scale in the legend. Default is `"-log10(adj. p-value)"`.
 #' @param axis_text_size A numeric value specifying the size of the axis text. Default is `8`.
 #' @param x_axis_text_size A numeric value specifying the size of the x-axis text. If NULL, uses `axis_text_size`. Default is `NULL`.
@@ -70,6 +71,7 @@ domino_plot <- function(data,
                         logfc_colors = c(low = "blue", mid = "white", high = "red"),
                         color_scale_name = "Log2 Fold Change",
                         size_scale_name = "-log10(adj. p-value)",
+                        p_label_formatter = function(lp) sprintf("%.2g", 10^-lp),
                         axis_text_size = 8,
                         x_axis_text_size = NULL,
                         y_axis_text_size = NULL,
@@ -359,6 +361,13 @@ domino_plot <- function(data,
       y_pos = celltype_numeric + y_offset
     )
   
+  if (is.null(logfc_limits) || any(!is.finite(logfc_limits)))
+    logfc_limits <- range(plot_data[[log_fc]], na.rm = TRUE)
+  
+  size_vals   <- -log10(plot_data[[p_val]])
+  size_limits <- range(size_vals, na.rm = TRUE)
+  size_breaks <- pretty(size_limits, 4)
+  
   n_celltypes <- length(all_celltypes)
   n_genes <- length(gene_list)
   if (is.null(aspect_ratio)) {
@@ -416,11 +425,11 @@ domino_plot <- function(data,
         )
       }
     } +
-    scale_size_continuous(name = size_scale_name, range = c(min_dot_size, max_dot_size)) +
-    scale_x_continuous(
-      breaks = seq(1.5, by = spacing_factor, length.out = length(gene_list)),
-      labels = gene_list,
-      expand = expansion(mult = c(0.05, 0.05))
+    scale_size_continuous(
+      name   = size_scale_name,
+      limits = size_limits,
+      breaks = size_breaks,
+      range  = c(min_dot_size, max_dot_size)
     ) +
     # Fix the y-axis scale to properly display celltype labels
     scale_y_continuous(
@@ -471,30 +480,36 @@ domino_plot <- function(data,
       data_range <- range(plot_data$adj_logfc, na.rm = TRUE)
       custom_legend_plot <- create_custom_domino_legends(
         contrast_levels = contrast_labels,
-        var_positions = legend_var_positions,
-        var_id = var_id,
-        contrast = contrast,
-        logfc_colors = logfc_colors,
-        logfc_limits = data_range,
+        var_positions   = legend_var_positions,
+        var_id          = var_id,
+        contrast        = contrast,
+        logfc_colors    = logfc_colors,
+        logfc_limits    = if (is.null(logfc_limits)) range(plot_data$adj_logfc, na.rm = TRUE) else logfc_limits,
         color_scale_name = color_scale_name,
-        size_scale_name = size_scale_name,
-        min_dot_size = min_dot_size,
-        max_dot_size = max_dot_size,
-        legend_text_size = legend_text_size
+        size_scale_name  = size_scale_name,
+        size_limits      = size_limits,
+        size_breaks      = size_breaks,
+        min_dot_size     = min_dot_size,
+        max_dot_size     = max_dot_size,
+        legend_text_size = legend_text_size,
+        p_label_formatter = p_label_formatter
       )
     } else {
       custom_legend_plot <- create_custom_domino_legends(
         contrast_levels = contrast_labels,
-        var_positions = legend_var_positions,
-        var_id = var_id,
-        contrast = contrast,
-        logfc_colors = logfc_colors,
-        logfc_limits = logfc_limits,
+        var_positions   = legend_var_positions,
+        var_id          = var_id,
+        contrast        = contrast,
+        logfc_colors    = logfc_colors,
+        logfc_limits    = if (is.null(logfc_limits)) range(plot_data$adj_logfc, na.rm = TRUE) else logfc_limits,
         color_scale_name = color_scale_name,
-        size_scale_name = size_scale_name,
-        min_dot_size = min_dot_size,
-        max_dot_size = max_dot_size,
-        legend_text_size = legend_text_size
+        size_scale_name  = size_scale_name,
+        size_limits      = size_limits,
+        size_breaks      = size_breaks,
+        min_dot_size     = min_dot_size,
+        max_dot_size     = max_dot_size,
+        legend_text_size = legend_text_size,
+        p_label_formatter = p_label_formatter
       )
     }
     

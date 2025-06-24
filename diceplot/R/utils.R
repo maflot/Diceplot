@@ -2,7 +2,7 @@ utils::globalVariables(c(
   "label_x", "x_min", "x_max", "y_min", "y_max","var",
   "x_pos", "y_pos", "x_offset", "y_offset", "x", "y",
   "present", "combined", "value", "count", "gene", "Contrast","z", "label", "log_p_val",
-  "Celltype", "avg_log2FC", "p_val_adj", "log_p_val_adj","adj_logfc","label_y","label_x","dot_color"
+  "Celltype", "avg_log2FC", "p_val_adj", "log_p_val_adj","adj_logfc","label_y","label_x","dot_color","geom_raster","scale_fill_gradient2","category"
 ))
 
 
@@ -436,6 +436,185 @@ create_custom_legends <- function(data, cat_c, group, cat_c_colors, group_colors
 }
 
 
+#' Create custom legends for a domino plot
+#'
+#' @param contrast_levels Character vector of contrast level names.
+#' @param var_positions   Data frame with variable positions.
+#' @param var_id          Column name for the variable identifier.
+#' @param contrast        Column name for the contrast variable.
+#' @param logfc_colors    Named vector with "low", "mid", "high" colours.
+#' @param logfc_limits    Numeric vector (length 2) for logFC scale limits.
+#' @param color_scale_name Title for the logFC colour legend.
+#' @param size_scale_name  Title for the p-value size legend.
+#' @param min_dot_size,max_dot_size Numeric dot-size range.
+#' @param size_limits,size_breaks   Passed to `scale_size_continuous()`.
+#' @param p_label_formatter A function used to format the size legend labels (typically for p-values). Default is `function(lp) sprintf("%.2g", 10^-lp)`.
+#' @param legend_text_size Base font size for legend text.
+#'
+#' @return A combined `ggplot` object with three aligned legends.
+#' @keywords internal
+create_custom_domino_legends <- function(contrast_levels,
+                                         var_positions,
+                                         var_id,
+                                         contrast,
+                                         logfc_colors,
+                                         logfc_limits,
+                                         color_scale_name,
+                                         size_scale_name,
+                                         min_dot_size,
+                                         max_dot_size,
+                                         size_limits = NULL,
+                                         size_breaks = NULL,
+                                         legend_text_size = 8,
+                                         p_label_formatter = function(lp) sprintf("%.2g", 10^-lp)
+                                         ) {
+  legend_vars <- var_positions[var_positions[[contrast]] == contrast_levels[1], ]
+  var_legend_data <- data.frame(
+    var = legend_vars[[var_id]],
+    x   = legend_vars$x_offset,
+    y   = legend_vars$y_offset
+  )
+  vars_legend_plot <- ggplot() +
+    geom_point(data = var_legend_data,
+               aes(x, y),
+               size = 3,
+               fill = "white",
+               colour = "black",
+               stroke = .8,
+               shape = 21) +
+    geom_text(data = var_legend_data,
+              aes(
+                x = ifelse(x > 0, x + .15, ifelse(x < 0, x - .15,  0)),
+                y = ifelse(y > 0, y + .15, ifelse(y < 0, y - .15, .15)),
+                label = var,
+                hjust  = ifelse(x < 0, 1, ifelse(x > 0, 0, .5)),
+                vjust  = ifelse(y > 0, 0, ifelse(y < 0, 1, .5))
+              ),
+              size = legend_text_size / 3) +
+    ggtitle("Domino Layout") +
+    theme_void() +
+    theme(
+      plot.margin  = margin(10, 20, 10, 20),
+      plot.background = element_rect(fill = "white", colour = NA),
+      plot.title = element_text(hjust = .5,
+                                size = legend_text_size * 1.5,
+                                face = "bold",
+                                margin = margin(0, 0, 10, 0))
+    ) +
+    coord_fixed(ratio = 1,
+                xlim  = c(-.75, .75),
+                ylim  = c(-.5,  .5),
+                expand = FALSE,
+                clip   = "off")
+  
+  ## 2. logFC colour legend ----
+  grad_data <- expand.grid(
+    x = seq(-.25, .25, length.out = 50),
+    y = seq(  1,   5, length.out = 50)
+  )
+  grad_data$z <- rep(seq(logfc_limits[1], logfc_limits[2], length.out = 50),
+                     each = 50)
+  
+  tick_positions <- seq(1, 5, length.out = 5)
+  tick_labels    <- seq(logfc_limits[1], logfc_limits[2], length.out = 5)
+  tick_data <- data.frame(
+    x     = .35,
+    y     = tick_positions,
+    label = sprintf("%.1f", tick_labels)
+  )
+  
+  logfc_legend_plot <- ggplot() +
+    geom_raster(data = grad_data, aes(x, y, fill = z)) +
+    geom_rect(aes(xmin = -.25, xmax = .25, ymin = 1, ymax = 5),
+              fill = NA, colour = "black", size = .5) +
+    scale_fill_gradient2(
+      low    = logfc_colors["low"],
+      mid    = logfc_colors["mid"],
+      high   = logfc_colors["high"],
+      limits = logfc_limits
+    ) +
+    geom_text(data = tick_data,
+              aes(x, y, label = label),
+              size = legend_text_size / 2.3,
+              hjust = 0, vjust = .5) +
+    ggtitle(color_scale_name) +
+    theme_void() +
+    theme(
+      legend.position = "none",
+      plot.margin  = margin(10, 20, 10, 20),
+      plot.background = element_rect(fill = "white", colour = NA),
+      plot.title = element_text(hjust = .5,
+                                size = legend_text_size * 1.375,
+                                face = "bold",
+                                margin = margin(0, 0, 10, 0))
+    ) +
+    coord_fixed(ratio = 1,
+                xlim  = c(-.75, .75),
+                ylim  = c(.8,  5.2),
+                expand = FALSE,
+                clip   = "off")
+  
+  if (is.null(p_label_formatter)) {
+    p_label_formatter <- function(x) x
+  }
+  ## 3. p-value size legend ----
+  legend_breaks <- if (!is.null(size_breaks) && length(size_breaks) >= 3)
+    size_breaks[1:3]
+  else
+    seq(size_limits[1], size_limits[2], length.out = 3)
+  
+  p_val_legend_data <- data.frame(
+    log_p_val = legend_breaks,
+    x         = 0,
+    y         = rev(seq_along(legend_breaks))
+  )
+  print(p_val_legend_data)
+  print(size_scale_name)
+  p_val_legend_plot <- ggplot() +
+    geom_point(data = p_val_legend_data,
+               aes(x, y, size = log_p_val),
+               colour = "black") +
+    geom_point(data = p_val_legend_data,
+               aes(x, y, size = log_p_val),
+               shape = 1, colour = "black") +
+    scale_size_continuous(
+      limits = size_limits,
+      breaks = legend_breaks,
+      range  = c(min_dot_size, max_dot_size)
+    ) +
+    geom_text(data = p_val_legend_data,
+              aes(x = x + .4, y, label = p_label_formatter(log_p_val)),
+              size = legend_text_size / 2.3,
+              hjust = 0) +
+    ggtitle(size_scale_name) +
+    theme_void() +
+    theme(
+      legend.position = "none",
+      plot.margin  = margin(10, 20, 10, 20),
+      plot.background = element_rect(fill = "white", colour = NA),
+      plot.title = element_text(hjust = .5,
+                                size = legend_text_size * 1.375,
+                                face = "bold",
+                                margin = margin(0, 0, 10, 0))
+    ) +
+    coord_fixed(ratio = 1,
+                xlim  = c(-.75, .75),
+                ylim  = c(.5,   3.5),
+                expand = FALSE,
+                clip   = "off")
+  
+  ## 4. Combine ----
+  cowplot::plot_grid(
+    vars_legend_plot,
+    logfc_legend_plot,
+    p_val_legend_plot,
+    ncol = 1,
+    align = "v",
+    axis  = "lr",
+    rel_heights = c(2, 1.5, 1.5)
+  )
+}
+
 
 #' Create custom legends for the domino plot
 #'
@@ -450,8 +629,9 @@ create_custom_legends <- function(data, cat_c, group, cat_c_colors, group_colors
 #' @param right_rect_color A string specifying the color for the right rectangles.
 #'
 #' @return A ggplot object containing custom legends.
-#' @importFrom ggplot2 ggplot geom_point geom_rect geom_text theme_void theme element_text element_rect margin coord_fixed ggtitle
+#' @importFrom ggplot2 ggplot geom_point geom_rect geom_text theme_void theme element_text element_rect margin coord_fixed ggtitle geom_raster scale_fill_gradient2
 #' @importFrom cowplot plot_grid
+#' @importFrom stats na.omit
 #' @keywords internal
 create_custom_domino_legends_categorical <- function(contrast_levels,
                                                    var_positions,
