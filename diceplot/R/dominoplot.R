@@ -437,10 +437,15 @@ domino_plot <- function(data,
       labels = all_celltypes,
       expand = expansion(mult = c(0.1, 0.1))
     ) +
+    scale_x_continuous(
+      breaks = seq(1.5, by = spacing_factor, length.out = length(gene_list)),
+      labels = gene_list,
+      expand = expansion(mult = c(0.05, 0.05))
+    ) +
     labs(x = "", y = "") +
     theme_minimal() +
     theme(
-      axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 1, size = x_axis_text_size),
+      axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = x_axis_text_size),
       axis.text.y = element_text(size = y_axis_text_size),
       legend.text = element_text(size = legend_text_size),
       legend.title = element_text(size = legend_text_size + 1),
