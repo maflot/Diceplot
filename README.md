@@ -6,6 +6,10 @@
 
 # DicePlot
 
+> [!Note]
+> ggdiceplot implementation is now online:
+> https://github.com/maflot/ggdiceplot/tree/main
+
 The **DicePlot** package allows you to create visualizations (dice plots) for datasets with more than two categorical variables and additional continuous variables. This tool is particularly useful for exploring complex categorical data and their relationships with continuous variables.
 
 ## Installation
