@@ -1,13 +1,18 @@
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/diceplot)](https://CRAN.R-project.org/package=diceplot)
 [![CRAN Downloads](https://cranlogs.r-pkg.org/badges/grand-total/diceplot)](https://CRAN.R-project.org/package=diceplot)
 
-> [!Note]
-> This repository is in active development
 
 # DicePlot
 
 > [!Note]
 > ggdiceplot implementation is now online:
+> The newer ggdiceplot implementation is a fully flexible ggplot2 extension and should be preferred for most applications:
+>	-	Full ggplot2 compatibility
+>	-	Independent control of dot position, color, size, and fill
+>	-	Supports color overloading (e.g., Organ as dot position + Regulation as color)
+>	-	Works with all ggplot themes, scales, facets, guides, and extensions
+>	-	More robust handling of missing values and sparse matrices
+>   
 > https://github.com/maflot/ggdiceplot/tree/main
 
 The **DicePlot** package allows you to create visualizations (dice plots) for datasets with more than two categorical variables and additional continuous variables. This tool is particularly useful for exploring complex categorical data and their relationships with continuous variables.
