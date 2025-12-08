@@ -2,7 +2,9 @@
 [![CRAN Downloads](https://cranlogs.r-pkg.org/badges/grand-total/diceplot)](https://CRAN.R-project.org/package=diceplot)
 
 
-# DicePlot
+# DicePlot (Legacy code)
+> [!warning]
+> This repository won't be updated, future improvements and changes will be solely applied to the ggplot compatible package [ggdiceplot](https://github.com/maflot/ggdiceplot/tree/main)
 
 > [!Note]
 > ggdiceplot implementation is now online:
